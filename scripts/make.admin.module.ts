@@ -850,10 +850,10 @@ function capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-function pluralize(value: string) {
-  if (/[bcdfghjklmnpqrstvwxyz]y$/i.test(value)) {
-    return value.slice(0, -1) + 'ies';
+function pluralize(word: string) {
+  if (word.length > 2 && /[bcdfghjklmnpqrstvwxyz]y$/i.test(word)) {
+    return word.slice(0, -1) + 'ies';
   }
-  return value + 's';
+  return word + 's';
 }
 
