@@ -1,0 +1,44 @@
+@font-face {
+  font-family: "Noto Sans Lao";
+  src: url("../fonts/NotoSansLaoUI-Light.ttf") format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Noto Sans Lao";
+  src: url("../fonts/NotoSansLaoUI-Regular.ttf") format("truetype");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Noto Sans Lao";
+  src: url("../fonts/NotoSansLaoUI-SemiBold.ttf") format("truetype");
+  font-weight: 700;
+}
+
+/* Inter */
+@font-face {
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Light.ttf") format("truetype");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Medium.ttf") format("truetype");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Bold.ttf") format("truetype");
+  font-weight: 600;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Black.ttf") format("truetype");
+  font-weight: 700;
+}
