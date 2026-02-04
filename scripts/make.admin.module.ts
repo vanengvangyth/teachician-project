@@ -851,6 +851,9 @@ function capitalize(value: string) {
 }
 
 function pluralize(value: string) {
-  if (value.endsWith('y')) return value.slice(0, -1) + 'ies';
+  if (/[bcdfghjklmnpqrstvwxyz]y$/i.test(value)) {
+    return value.slice(0, -1) + 'ies';
+  }
   return value + 's';
 }
+
