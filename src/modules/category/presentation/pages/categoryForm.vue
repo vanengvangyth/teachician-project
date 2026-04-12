@@ -1,39 +1,39 @@
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fade">
     <form class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mx-4 overflow-auto">
-      <h3 class="text-center text-xl font-bold mb-6">Category Form</h3>
+      <h3 class="text-center text-xl font-bold mb-6">ແບບຟອມໝວດໝູ່</h3>
 
       <!-- Name -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">nameEng</label>
-        <input v-model="nameEngValue" type="text" placeholder="Enter nameEng"
+        <label class="block text-sm font-semibold mb-1">ຊື່ພາສາອັງກິດ</label>
+        <input v-model="nameEngValue" type="text" placeholder="ຊື່ພາສາອັງກິດ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none" />
       </div>
       <!-- nameLao -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">nameLao</label>
-        <input v-model="nameLaoValue" type="text" placeholder="Enter nameLao"
+        <label class="block text-sm font-semibold mb-1">ຊື່ພາສາລາວ</label>
+        <input v-model="nameLaoValue" type="text" placeholder="ຊື່ພາສາລາວ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
       </div>
 
       <!-- descriptionLao -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">descriptionLao</label>
-        <input v-model="descriptionLaoValue" type="text" placeholder="Enter descriptionLao"
+        <label class="block text-sm font-semibold mb-1">ຄຳອະທິບາຍ-ລາວ</label>
+        <input v-model="descriptionLaoValue" type="text" placeholder="ຄຳອະທິບາຍ-ລາວ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
       </div>
 
       <!-- descriptionEng -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">descriptionEng</label>
-        <input v-model="descriptionEngValue" type="text" placeholder="Enter descriptionEng"
+        <label class="block text-sm font-semibold mb-1">ຄຳອະທິບາຍ-ອັງກິດ</label>
+        <input v-model="descriptionEngValue" type="text" placeholder="ຄຳອະທິບາຍ-ອັງກິດ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
       </div>
 
       <!-- iconUrl -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">iconUrl</label>
-        <input v-model="iconUrlValue" type="text" placeholder="Enter icon URL"
+        <label class="block text-sm font-semibold mb-1">ຮູບພາບ</label>
+        <input v-model="iconUrlValue" type="text" placeholder="ຮູບພາບ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
       </div>
 
@@ -46,12 +46,12 @@
 
         <button v-else type="button" @click="onSubmit"
           class="px-4 py-2 bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600 transition">
-          Save
+          ບັນທຶກ
         </button>
 
         <button type="button" @click="emits('closeForm', false)"
           class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition">
-          Cancel
+          ຍົກເລີກ
         </button>
       </div>
     </form>

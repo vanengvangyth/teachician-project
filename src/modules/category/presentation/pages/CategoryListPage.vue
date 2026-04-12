@@ -15,6 +15,9 @@ const showForm = ref(false);
 const perPage = 10;
 const showDeleted = ref(false);
 
+const showDeleteModal = ref(false);
+const selectedId = ref<number | null>(null);
+
 const route = useRoute();
 const router = useRouter();
 
@@ -63,16 +66,23 @@ watch(
   () => loadItems(),
   { immediate: true }
 );
+function askDelete(id: number) {
+  selectedId.value = id;
+  showDeleteModal.value = true;
+}
 
-async function onDelete(id: number) {
-  if (!confirm("Delete this item?")) return;
+async function confirmDelete() {
+  if (!selectedId.value) return;
 
   try {
-    await deleteUseCase.execute(id);
-    items.value = items.value.filter((i) => i.id !== id);
+    await deleteUseCase.execute(selectedId.value);
+    items.value = items.value.filter((i) => i.id !== selectedId.value);
     totalItems.value--;
   } catch (error) {
     console.error("🔥 Delete failed:", error);
+  } finally {
+    showDeleteModal.value = false;
+    selectedId.value = null;
   }
 }
 
@@ -94,17 +104,17 @@ onMounted(loadItems);
   <div class="min-h-screen p-6 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg max-h-[60vh] overflow-y-auto">
     <!-- HEADER -->
     <div class="flex items-center justify-between p-6 border-b">
-      <h1 class="text-2xl font-bold text-slate-800">Category Management</h1>
+      <h1 class="text-2xl font-bold text-slate-800">ຫນ້າຈັດການຫມວດຫມູ່</h1>
       <div class="flex px-10">
         <button
           class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition mx-10"
           @click="showDeleted = !showDeleted">
-          Restore Deleted Category
+          ກູ້ຄືນໝວດໝູ່ທີ່ຖືກລຶບ
         </button>
         <button
           class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
           @click="showForm = true">
-          + Add New Category
+          + ເພິ່ມຫມວດຫມູ່ໃຫມ່
         </button>
       </div>
     </div>
@@ -113,80 +123,103 @@ onMounted(loadItems);
     <categoryForm v-if="showForm" @closeForm="closeFunction()" />
 
     <!-- SEARCH -->
-    <div class="flex flex-col gap-3 p-6 sm:flex-row">
-      <input v-model="search" placeholder="Search..."
-        class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none" />
-    </div>
+    <div class="flex justify-center p-6">
+      <input v-model="search" placeholder="Search..." class="w-full max-w-sm rounded-lg border border-blue-400 bg-white px-4 py-2 text-sm
+           focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none" </div>
 
-    <!-- TABLE -->
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm rounded-lg">
-        <thead class="bg-slate-100 text-slate-600">
-          <tr>
-            <th class="px-6 py-3 text-left font-semibold">Icon</th>
-            <th class="px-6 py-3 text-left font-semibold">Category</th>
-            <th class="px-6 py-3 text-left font-semibold">Description</th>
-            <th class="px-6 py-3 text-left font-semibold">Created At</th>
-            <th class="px-6 py-3 text-right font-semibold">Actions</th>
-          </tr>
-        </thead>
+      <!-- TABLE -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm rounded-lg">
+          <thead class="bg-slate-100 text-slate-600">
+            <tr>
+              <th class="px-6 py-3 text-left font-semibold">ຮູບພາບ</th>
+              <th class="px-6 py-3 text-left font-semibold">ປະເພດ</th>
+              <th class="px-6 py-3 text-left font-semibold">ຄຳອະທິບາຍ</th>
+              <th class="px-6 py-3 text-left font-semibold">ວັນທີ່ສ້າງ</th>
+              <th class="px-6 py-3 text-right font-semibold">Actions</th>
+            </tr>
+          </thead>
 
-        <tbody class="divide-y">
-          <tr v-for="item in items" :key="item.id" class="hover:bg-slate-50 transition">
+          <tbody class="divide-y">
+            <tr v-for="item in items" :key="item.id" class="hover:bg-slate-50 transition">
 
-          <!-- Icon -->
-          <td class="px-6 py-4">
-            <img v-if="item.iconUrl" :src="item.iconUrl" class="w-8 h-8 object-cover rounded" />
-            <span v-else class="text-slate-400 text-xs">No Icon</span>
-          </td>
+              <!-- Icon -->
+              <td class="px-6 py-4">
+                <img v-if="item.iconUrl" :src="item.iconUrl" class="w-8 h-8 object-cover rounded" />
+                <span v-else class="text-slate-400 text-xs">No Icon</span>
+              </td>
 
-          <!-- Category -->
-          <td class="px-6 py-4">
-            <div class="font-semibold text-slate-800">
-              {{ item.nameLao || item.nameEng || ('#' + item.id) }}
-            </div>
-            <div v-if="item.nameEng" class="text-xs text-slate-500">
-              {{ item.nameEng }}
-            </div>
-          </td>
+              <!-- Category -->
+              <td class="px-6 py-4">
+                <div class="font-semibold text-slate-800">
+                  {{ item.nameLao || item.nameEng || ('#' + item.id) }}
+                </div>
+                <div v-if="item.nameEng" class="text-xs text-slate-500">
+                  {{ item.nameEng }}
+                </div>
+              </td>
 
-          <!-- Description -->
-          <td class="px-6 py-4 text-sm text-slate-600">
-            {{ item.descriptionLao || item.descriptionEng || '-' }}
-          </td>
+              <!-- Description -->
+              <td class="px-6 py-4 text-sm text-slate-600">
+                {{ item.descriptionLao || item.descriptionEng || '-' }}
+              </td>
 
-          <!-- Created At -->
-          <td class="px-6 py-4 text-sm text-slate-500">
-            {{ new Date(item.createdAt).toLocaleDateString() }}
-          </td>
+              <!-- Created At -->
+              <td class="px-6 py-4 text-sm text-slate-500">
+                {{ new Date(item.createdAt).toLocaleDateString() }}
+              </td>
 
-          <!-- Actions -->
-          <td class="px-6 py-4 text-right">
-            <div class="flex justify-end gap-2">
-              <button class="rounded-md bg-amber-100 px-3 py-1 text-amber-700 hover:bg-amber-200 transition" @click="
-                () => {
-                  router.push({
-                    path: route.path,
-                    query: { ...route.query, id: item.id },
-                  });
-                  showForm = true;
-                }
-              ">
-                ✏️
+              <!-- Actions -->
+              <td class="px-6 py-4 text-right">
+                <div class="flex justify-end gap-2">
+                  <button class="rounded-md  px-3 py-1 text-amber-700 hover:bg-amber-200 transition" @click="
+                    () => {
+                      router.push({
+                        path: route.path,
+                        query: { ...route.query, id: item.id },
+                      });
+                      showForm = true;
+                    }
+                  ">
+                    ✏️
+                  </button>
+
+                  <button @click="askDelete(item.id)"
+                    class="rounded-md px-3 py-1 text-red-600 hover:bg-red-200 transition">
+                    🗑️
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+        <!-- DELETE MODAL -->
+        <div v-if="showDeleteModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
+
+            <h2 class="text-lg font-semibold text-slate-800 mb-2">
+              ຢືນຢັນການລຶບ
+            </h2>
+
+            <p class="text-sm text-slate-600 mb-6">
+              ທ່ານຕ້ອງການລຶບລາຍການນີ້ແທ້ບໍ?
+            </p>
+
+            <div class="flex justify-end gap-3">
+              <button @click="showDeleteModal = false" class="px-4 py-2 rounded-md bg-slate-200 hover:bg-slate-300">
+                ຍົກເລີກ
               </button>
 
-              <button @click="onDelete(item.id)"
-                class="rounded-md bg-red-100 px-3 py-1 text-red-600 hover:bg-red-200 transition">
-                🗑️
+              <button @click="confirmDelete" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">
+                ລຶບ
               </button>
             </div>
-          </td>
 
-          </tr>
-        </tbody>
-      </table>
+          </div>
+        </div>
+      </div>
+
+      <Paginator :numberOfPage="numberOfPage" :currentPage="currentPage" @page-changed="goToPage" />
     </div>
-
-    <Paginator :numberOfPage="numberOfPage" :currentPage="currentPage" @page-changed="goToPage" />
-  </div>
 </template>

@@ -6,6 +6,8 @@ export interface Category {
   descriptionEng: string
   iconUrl: string;
   createdAt: string;
+
+  updatedAt: string;
 }
 
 export interface PaginatedCategorys {
