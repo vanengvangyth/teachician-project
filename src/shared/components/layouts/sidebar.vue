@@ -8,23 +8,25 @@
         </p>
       </RouterLink>
 
-      <RouterLink
-        class="sidebar-item"
-        :to="{ path: '/order', query: { page: '1', search: '' } }"
-      >
+      <RouterLink class="sidebar-item" :to="{ path: '/category', query: { page: '1', search: '' } }">
         <p>
           <List class="w-4 h-4 mx-2" />
           Category
         </p>
       </RouterLink>
 
-      <RouterLink
-        class="sidebar-item"
-        :to="{ path: '/product', query: { page: '1', search: '' } }"
-      >
+
+      <RouterLink class="sidebar-item" :to="{ path: '/product', query: { page: '1', search: '' } }">
         <p>
           <Package class="w-4 h-4 mx-2" />
           Product
+        </p>
+      </RouterLink>
+
+      <RouterLink class="sidebar-item" to="/job">
+        <p>
+          <Briefcase class="w-4 h-4 mx-2" />
+          Job
         </p>
       </RouterLink>
 
@@ -51,18 +53,25 @@
         </p>
 
         <ul>
-          <li><RouterLink to="/manage/benefit">Benefit</RouterLink></li>
-          <li><RouterLink to="/manage/skill-library">Skill Library</RouterLink></li>
-          <li><RouterLink to="/manage/skill-level">Skill Level</RouterLink></li>
-          <li><RouterLink to="/manage/language">Language</RouterLink></li>
-          <li><RouterLink to="/manage/language-level">Language Level</RouterLink></li>
+          <li>
+            <RouterLink to="/manage/benefit">Benefit</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/manage/skill-library">Skill Library</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/manage/skill-level">Skill Level</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/manage/language">Language</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/manage/language-level">Language Level</RouterLink>
+          </li>
         </ul>
       </div>
 
-      <RouterLink
-        class="sidebar-item"
-        :to="{ path: '/user', query: { page: '1', search: '' } }"
-      >
+      <RouterLink class="sidebar-item" :to="{ path: '/user', query: { page: '1', search: '' } }">
         <p>
           <Users class="w-4 h-4 mx-2" />
           ຂໍ້ມູນພະນັກງານ
@@ -87,6 +96,9 @@ import {
   List,
   Package,
   TestTube,
+  Briefcase,
+  HardHat, 
+  UserCheck,
   Archive,
   Folder,
   Users,

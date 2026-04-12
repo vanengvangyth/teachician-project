@@ -25,6 +25,16 @@ const router = createRouter({
       component: () => import("../modules/test/presentation/pages/TestListPage.vue")
     },
     // {
+    //   path: "/່job",
+    //   name: "job",
+    //   component: () => import("../modules/job/presentation/pages/JobListPage.vue")
+    // },
+    {
+      path: "/category",
+      name: "category",
+      component: () => import("../modules/category/presentation/pages/CategoryListPage.vue")
+    }
+    // {
     //   path: "/product",
     //   name: "product",
     //   component: () => import("../modules/product/presentation/pages/ProductListPage.vue")
