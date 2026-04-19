@@ -8,18 +8,17 @@
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item" :to="{ path: '/category', query: { page: '1', search: '' } }">
+      <RouterLink class="sidebar-item" to="/category">
         <p>
           <List class="w-4 h-4 mx-2" />
           Category
         </p>
       </RouterLink>
 
-
-      <RouterLink class="sidebar-item" :to="{ path: '/product', query: { page: '1', search: '' } }">
+       <RouterLink class="sidebar-item" to="/comment">
         <p>
-          <Package class="w-4 h-4 mx-2" />
-          Product
+          <MessagesSquare class="w-4 h-4 mx-2" />
+          Comment
         </p>
       </RouterLink>
 
@@ -27,6 +26,13 @@
         <p>
           <Briefcase class="w-4 h-4 mx-2" />
           Job
+        </p>
+      </RouterLink>
+
+      <RouterLink class="sidebar-item" :to="{ path: '/product', query: { page: '1', search: '' } }">
+        <p>
+          <Package class="w-4 h-4 mx-2" />
+          Product
         </p>
       </RouterLink>
 
@@ -98,6 +104,7 @@ import {
   TestTube,
   Briefcase,
   HardHat, 
+  MessagesSquare,
   UserCheck,
   Archive,
   Folder,

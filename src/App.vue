@@ -1,6 +1,6 @@
 <template>
   <div class="layouts" v-if="token">
-    <Loading :isloading="isloading" />
+    <Loading :isloading="isLoading" />
     <nav>
       <Toast />
       <Sidebar />
@@ -14,6 +14,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useLoadingStore } from "./stores/loading";
 import { RouterView } from "vue-router";
 import Sidebar from "./shared/components/layouts/sidebar.vue";
 import Toast from "./shared/components/toast.vue";
@@ -23,6 +24,10 @@ import { storeToRefs } from "pinia";
 import { useToastStore } from "./stores/toast";
 
 import { ref } from "vue";
+
+const loadingStore = useLoadingStore();
+
+const { isLoading } = storeToRefs(loadingStore);
 
 const isloading = ref<any>(false);
 

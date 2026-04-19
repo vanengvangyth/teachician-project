@@ -67,9 +67,12 @@ import * as yup from "yup";
 import { CreateCategoryUseCase } from "../../application/use-cases/create-categories.usecase";
 import { UpdateCategoryUseCase } from "../../application/use-cases/update-categories.usecase";
 import { GetOneCategoryUseCase } from "../../application/use-cases/get-one-categories.usecase";
+import { useToastStore } from "../../../../stores/toast";
 
 const route = useRoute();
 const emits = defineEmits(["closeForm"]);
+
+const toastStore = useToastStore();
 
 const repo = new CategoryRepositoryImpl();
 const createUseCase = new CreateCategoryUseCase(repo);
@@ -113,11 +116,14 @@ const onSubmit = handleSubmit(async (values: any) => {
       iconUrl: values.iconUrl,
     });
 
+    toastStore.toast("ສ້າງປະເພດສຳເລັດ");
+
     if (res?.id) {
       emits("closeForm", false);
     }
   } catch (e) {
     console.error("Create error:", e);
+    toastStore.toast("ສ້າງປະເພດບໍ່ສຳເລັດ");
   }
 });
 
@@ -133,11 +139,14 @@ const onUpdate = handleSubmit(async (values: any) => {
       iconUrl: values.iconUrl,
     });
 
+    toastStore.toast("ອັບເດດປະເພດສຳເລັດ");
+
     if (res?.id) {
       emits("closeForm", false);
     }
   } catch (e) {
     console.error("Update error:", e);
+    toastStore.toast("ອັບເດດປະເພດບໍ່ສຳເລັດ")
   }
 });
 

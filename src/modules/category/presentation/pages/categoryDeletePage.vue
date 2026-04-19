@@ -11,52 +11,54 @@
           <p class="text-sm text-slate-500">ກູ້ລາຍການທີ່ຖືກລືບ ແລະ ລືບຖາວອນ</p>
         </div>
 
-        <button
-          @click="$emit('closeForm', false)"
-          class="text-slate-400 hover:text-slate-600 transition"
-        >
+        <button @click="$emit('closeForm', false)" class="text-slate-400 hover:text-slate-600 transition">
           ✕
         </button>
       </div>
 
       <!-- Table -->
       <div class="p-6 overflow-x-auto">
+        <!-- isloading -->
+         <div v-if="isLoading" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div class="bg-white px-6 py-4 rounded-lg shadow text-slate-700">
+            Loading...
+          </div>
+        </div>
         <table class="w-full text-sm border-separate border-spacing-y-2">
           <thead>
             <tr class="text-slate-500">
-              <th class="px-4 py-2 text-left font-medium">Test</th>
+              <th class="px-4 py-2 text-left font-medium">ຊື່</th>
+              <th class="px-4 py-2 text-left font-medium">ເວລາທີ່ລຶບ</th>
               <th class="px-4 py-2 text-right font-medium">Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            <tr
-              v-for="item in items"
-              :key="item.id"
-              class="bg-slate-50 hover:bg-slate-100 transition rounded-xl"
-            >
+            <tr v-for="item in items" :key="item.id" class="bg-slate-50 hover:bg-slate-100 transition rounded-xl">
               <td class="px-4 py-3 rounded-l-xl">
                 <div class="font-semibold text-slate-800">{{ item.nameLao }}</div>
                 <div class="text-xs text-slate-500">{{ item.nameEng }}</div>
+              </td>
+
+              <td class="px-4 py-3 text-slate-600">
+                <div class="text-sm font-medium">
+                  {{ item.deletedAt ? new Date(item.deletedAt).toLocaleString('en-GB') : '-' }}
+                </div>
               </td>
 
               <td class="px-4 py-3 text-right rounded-r-xl">
                 <div class="flex justify-end gap-2">
 
                   <!-- Restore -->
-                  <button
-                    @click="askAction(item.id, 'restore')"
-                    class="rounded-lg bg-amber-100 px-3 py-1 text-amber-700 hover:bg-amber-200"
-                  >
-                    Restore
+                  <button @click="askAction(item.id, 'restore')"
+                    class="rounded-lg bg-amber-100 px-3 py-1 text-amber-700 hover:bg-amber-200">
+                    ກູ້ຄືນຂໍ້ມູນ
                   </button>
 
                   <!-- Delete -->
-                  <button
-                    @click="askAction(item.id, 'delete')"
-                    class="rounded-lg bg-red-100 px-3 py-1 text-red-600 hover:bg-red-200"
-                  >
-                    Delete
+                  <button @click="askAction(item.id, 'delete')"
+                    class="rounded-lg bg-red-100 px-3 py-1 text-red-600 hover:bg-red-200">
+                    ລຶບຖາວອນ
                   </button>
 
                 </div>
@@ -70,10 +72,7 @@
   </div>
 
   <!-- ✅ CONFIRM MODAL (FIXED: OUTSIDE TABLE) -->
-  <div
-    v-if="showConfirm"
-    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40"
-  >
+  <div v-if="showConfirm" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
     <div class="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl">
 
       <h2 class="text-lg font-semibold text-slate-800 mb-2">
@@ -91,19 +90,13 @@
 
       <div class="flex justify-end gap-3">
 
-        <button
-          @click="showConfirm = false"
-          class="px-4 py-2 rounded-md bg-slate-200 hover:bg-slate-300"
-        >
+        <button @click="showConfirm = false" class="px-4 py-2 rounded-md bg-slate-200 hover:bg-slate-300">
           ຍົກເລີກ
         </button>
 
-        <button
-          @click="confirmAction"
-          :class="actionType === 'delete'
-            ? 'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md'
-            : 'bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md'"
-        >
+        <button @click="confirmAction" :class="actionType === 'delete'
+          ? 'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md'
+          : 'bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md'">
           ຢືນຢັນ
         </button>
 
@@ -119,9 +112,13 @@ import type { PaginatedCategorys, Category } from "../../domain/entities/categor
 import { HardDeleteCategoryUseCase } from "../../application/use-cases/hard-delete-categories.usecase";
 import { RestoreCategoryUseCase } from "../../application/use-cases/restore-categories.usecase";
 import { GetDeletedCategorysUseCase } from "../../application/use-cases/get-delete-usecase";
+import { useToastStore } from "../../../../stores/toast";
 
 const items = ref<Category[]>([]);
 const route = useRoute();
+
+const isLoading = ref(false);
+const toastStore = useToastStore();
 
 const totalItems = ref(0);
 const perPage = 10;
@@ -146,13 +143,20 @@ const currentPage = computed(() => {
 
 /* load data */
 async function loadItems() {
-  const result: PaginatedCategorys = await getDeleted.execute({
-    page: currentPage.value,
-    perPage,
-  });
+  try {
+    isLoading.value = true;
+    const result: PaginatedCategorys = await getDeleted.execute({
+      page: currentPage.value,
+      perPage,
+    });
 
-  items.value = result.data;
-  totalItems.value = result.total;
+    items.value = result.data;
+    totalItems.value = result.total;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 watch(() => route.query.page, loadItems, { immediate: true });
@@ -170,6 +174,7 @@ function askAction(id: number, type: "delete" | "restore") {
 async function confirmAction() {
   if (!selectedId.value || !actionType.value) return;
 
+  toastStore.toast("ກໍາລັງຢືນຢັນ...");
   try {
     if (actionType.value === "delete") {
       await hardDelete.execute(selectedId.value);
@@ -182,6 +187,7 @@ async function confirmAction() {
 
   } catch (error) {
     console.error("🔥 Action failed:", error);
+    toastStore.toast("ຢືນຢັນບໍ່ສໍາເລັດ");
   } finally {
     showConfirm.value = false;
     selectedId.value = null;

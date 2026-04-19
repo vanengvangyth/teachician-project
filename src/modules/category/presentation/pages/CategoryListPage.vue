@@ -15,6 +15,8 @@ const showForm = ref(false);
 const perPage = 10;
 const showDeleted = ref(false);
 
+const isLoading = ref(false);
+
 const showDeleteModal = ref(false);
 const selectedId = ref<number | null>(null);
 
@@ -38,18 +40,26 @@ const currentPage = computed(() => {
 });
 
 async function loadItems() {
-  const params: any = {
-    page: currentPage.value,
-    perPage,
-  };
+  try {
+    isLoading.value = true;
 
-  if (search.value && search.value.trim() !== "") {
-    params.search = search.value.trim();
+    const params: any = {
+      page: currentPage.value,
+      perPage,
+    };
+
+    if (search.value && search.value.trim() !== "") {
+      params.search = search.value.trim();
+    }
+
+    const result: PaginatedCategorys = await getUseCase.execute(params);
+    items.value = result.data;
+    totalItems.value = result.total;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;
   }
-
-  const result: PaginatedCategorys = await getUseCase.execute(params);
-  items.value = result.data;
-  totalItems.value = result.total;
 }
 
 watch(search, () => {
@@ -75,12 +85,14 @@ async function confirmDelete() {
   if (!selectedId.value) return;
 
   try {
+    isLoading.value = true;
     await deleteUseCase.execute(selectedId.value);
     items.value = items.value.filter((i) => i.id !== selectedId.value);
     totalItems.value--;
   } catch (error) {
     console.error("🔥 Delete failed:", error);
   } finally {
+    isLoading.value = false;
     showDeleteModal.value = false;
     selectedId.value = null;
   }
@@ -129,6 +141,12 @@ onMounted(loadItems);
 
       <!-- TABLE -->
       <div class="overflow-x-auto">
+        <!-- LOADING OVERLAY -->
+        <div v-if="isLoading" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div class="bg-white px-6 py-4 rounded-lg shadow text-slate-700">
+            Loading...
+          </div>
+        </div>
         <table class="w-full text-sm rounded-lg">
           <thead class="bg-slate-100 text-slate-600">
             <tr>
@@ -136,6 +154,7 @@ onMounted(loadItems);
               <th class="px-6 py-3 text-left font-semibold">ປະເພດ</th>
               <th class="px-6 py-3 text-left font-semibold">ຄຳອະທິບາຍ</th>
               <th class="px-6 py-3 text-left font-semibold">ວັນທີ່ສ້າງ</th>
+              <th class="px-6 py-3 text-left font-semibold">ວັນທີ່ແກ້ໄຂ</th>
               <th class="px-6 py-3 text-right font-semibold">Actions</th>
             </tr>
           </thead>
@@ -167,6 +186,11 @@ onMounted(loadItems);
               <!-- Created At -->
               <td class="px-6 py-4 text-sm text-slate-500">
                 {{ new Date(item.createdAt).toLocaleDateString() }}
+              </td>
+
+              <!-- Updated At -->
+              <td class="px-6 py-4 text-sm text-slate-500">
+                {{ new Date(item.updatedAt).toLocaleString('en-GB') }}
               </td>
 
               <!-- Actions -->

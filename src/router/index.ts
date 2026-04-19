@@ -24,15 +24,32 @@ const router = createRouter({
       name: "test",
       component: () => import("../modules/test/presentation/pages/TestListPage.vue")
     },
-    // {
-    //   path: "/່job",
-    //   name: "job",
-    //   component: () => import("../modules/job/presentation/pages/JobListPage.vue")
-    // },
     {
       path: "/category",
       name: "category",
       component: () => import("../modules/category/presentation/pages/CategoryListPage.vue")
+    },
+    {
+      path: "/comment",
+      name: "comment",
+      component: () => import("../modules/comment/presentation/pages/CommentListPage.vue")
+    },
+    {
+      path: "/job",
+      name: "job",
+      component: () => import("../modules/job/presentation/pages/JobListPage.vue")
+    },
+    {
+      path: "/job/create",
+      name: "job.create",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/job/presentation/pages/jobForm.vue")
+    },
+    {
+      path: "/job/:id/edit",
+      name: "job.edit",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/job/presentation/pages/jobForm.vue")
     }
     // {
     //   path: "/product",
