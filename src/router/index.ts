@@ -50,7 +50,34 @@ const router = createRouter({
       name: "job.edit",
       meta: { requiresAuth: true },
       component: () => import("../modules/job/presentation/pages/jobForm.vue")
+    },
+
+    {
+      path: "/techician",
+      name: "techician",
+      component: () => import("../modules/techician/presentation/pages/TechicianListPage.vue")
+    },
+    {
+      path: "/techician/:id/detail",
+      name: "techician.detail",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/techician/presentation/pages/techicianDetail.vue")
+    },
+
+    {
+      path: "/document",
+      name: "document",
+      component: () => import("../modules/document/presentation/pages/DocumentListPage.vue")
+    },
+
+    {
+      path: "/document/:id/detail",
+      name: "document.detail",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/document/presentation/pages/DocumentDetail.vue")
     }
+    
+    
     // {
     //   path: "/product",
     //   name: "product",

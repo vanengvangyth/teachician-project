@@ -1,0 +1,162 @@
+<template>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fade">
+    <form class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mx-4 overflow-auto">
+      <h3 class="text-center text-xl font-bold mb-6">ແບບຟອມນາຍຊ່າງ</h3>
+
+      <!-- userId -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-1">userId</label>
+        <input v-model="userIdValue" type="text" placeholder="Enter userId"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      </div>
+
+      <!-- descriptionLao -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-1">Description (Lao)</label>
+        <input v-model="descriptionLaoValue" type="text" placeholder="DescriptionLao"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      </div>
+
+      <!-- descriptionEng -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-1">Description (Eng)</label>
+        <input v-model="descriptionEngValue" type="text" placeholder="DescriptionEng"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      </div>
+
+      <!-- years -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-1">Years</label>
+        <input v-model="yearsValue" type="number" placeholder="Years"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-around gap-3">
+        <button v-if="route.query.id" type="button" @click="onUpdate"
+          class="px-4 py-2 bg-amber-500 text-white font-semibold rounded-lg">
+          Update
+        </button>
+
+        <button v-else type="button" @click="onSubmit"
+          class="px-4 py-2 bg-sky-500 text-white font-semibold rounded-lg">
+          Save
+        </button>
+
+        <button type="button" @click="emits('closeForm', false)"
+          class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { watch } from "vue";
+import { useRoute } from "vue-router";
+import { useForm } from "vee-validate";
+import * as yup from "yup";
+
+import { TechicianRepositoryImpl } from "../../infrastructure/repositories/techician.repository.impl";
+import { CreateTechicianUseCase } from "../../application/use-cases/create-techicians.usecase";
+import { UpdateTechicianUseCase } from "../../application/use-cases/update-techicians.usecase";
+import { GetOneTechicianUseCase } from "../../application/use-cases/get-one-techicians.usecase";
+
+const route = useRoute();
+const emits = defineEmits(["closeForm"]);
+
+const repo = new TechicianRepositoryImpl();
+const createUseCase = new CreateTechicianUseCase(repo);
+const updateUseCase = new UpdateTechicianUseCase(repo);
+const getOneUseCase = new GetOneTechicianUseCase(repo);
+
+/* ✅ FIX: proper number schema */
+const schema = yup.object({
+  userId: yup.number().required(),
+  descriptionLao: yup.string().required(),
+  descriptionEng: yup.string().required(),
+  yearsOfExperience: yup.number().required().min(0),
+});
+
+/* ✅ FIX: null instead of "" for numbers */
+const { handleSubmit, defineField, setFieldValue, handleReset } = useForm({
+  validationSchema: schema,
+  initialValues: {
+    userId: null,
+    descriptionLao: "",
+    descriptionEng: "",
+    yearsOfExperience: null,
+  },
+});
+
+const [userIdValue] = defineField("userId");
+const [descriptionLaoValue] = defineField("descriptionLao");
+const [descriptionEngValue] = defineField("descriptionEng");
+const [yearsValue] = defineField("yearsOfExperience");
+
+/* CREATE */
+const onSubmit = handleSubmit(async (values) => {
+  try {
+    const res = await createUseCase.execute({
+      userId: Number(values.userId),
+      descriptionLao: values.descriptionLao,
+      descriptionEng: values.descriptionEng,
+      yearsOfExperience: Number(values.yearsOfExperience),
+    });
+
+    if (res?.id) emits("closeForm", false);
+  } catch (e) {
+    console.error("Create error:", e);
+  }
+});
+
+/* UPDATE */
+const onUpdate = handleSubmit(async (values) => {
+  try {
+    const id = Number(route.query.id);
+
+    const res = await updateUseCase.execute(id, {
+      userId: Number(values.userId),
+      descriptionLao: values.descriptionLao,
+      descriptionEng: values.descriptionEng,
+      yearsOfExperience: Number(values.yearsOfExperience),
+    });
+
+    if (res?.id) emits("closeForm", false);
+  } catch (e) {
+    console.error("Update error:", e);
+  }
+});
+
+/* LOAD EDIT DATA */
+const editItem = async (id: number) => {
+  try {
+    const res: any = await getOneUseCase.execute(id);
+
+    if (!res?.data) return;
+
+    setFieldValue("userId", res.data.userId);
+    setFieldValue("descriptionLao", res.data.descriptionLao);
+    setFieldValue("descriptionEng", res.data.descriptionEng);
+    setFieldValue("yearsOfExperience", res.data.yearsOfExperience);
+  } catch (e) {
+    console.error("Error loading item:", e);
+  }
+};
+
+/* WATCH ROUTE */
+watch(
+  () => route.query.id,
+  (newId) => {
+    const id = Number(newId);
+
+    if (id) {
+      editItem(id);
+    } else {
+      handleReset();
+    }
+  },
+  { immediate: true }
+);
+</script>

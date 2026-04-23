@@ -29,6 +29,20 @@
         </p>
       </RouterLink>
 
+      <RouterLink class="sidebar-item" to="/techician">
+        <p>
+          <HardHat class="w-4 h-4 mx-2" />
+          Technician
+        </p>
+      </RouterLink>
+
+      <RouterLink class="sidebar-item" to="/document">
+        <p>
+          <FileText class="w-4 h-4 mx-2" />
+          Document
+        </p>
+      </RouterLink> 
+
       <RouterLink class="sidebar-item" :to="{ path: '/product', query: { page: '1', search: '' } }">
         <p>
           <Package class="w-4 h-4 mx-2" />
@@ -106,6 +120,7 @@ import {
   HardHat, 
   MessagesSquare,
   UserCheck,
+  FileText,
   Archive,
   Folder,
   Users,
