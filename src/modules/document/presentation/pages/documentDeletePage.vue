@@ -57,7 +57,7 @@
 
               <td class="px-4 py-3">
                 <div class="font-semibold text-slate-800">
-                  {{ new Date(item.createdAt).toLocaleDateString() }}
+                  {{ new Date(item.deletedAt).toLocaleDateString() }}
                 </div>
               </td>
 

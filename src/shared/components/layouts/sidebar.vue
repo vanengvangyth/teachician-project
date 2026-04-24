@@ -57,6 +57,13 @@
         </p>
       </RouterLink> 
 
+      <RouterLink class="sidebar-item" to="/service_area">
+        <p>
+          <MapPin class="w-4 h-4 mx-2" />
+          Service_area
+        </p>
+      </RouterLink> 
+
       <RouterLink class="sidebar-item" :to="{ path: '/product', query: { page: '1', search: '' } }">
         <p>
           <Package class="w-4 h-4 mx-2" />
@@ -135,6 +142,7 @@ import {
   MessagesSquare,
   Paperclip,
   Bell,
+  MapPin,
   UserCheck,
   FileText,
   Archive,

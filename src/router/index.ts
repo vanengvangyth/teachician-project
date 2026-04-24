@@ -93,6 +93,12 @@ const router = createRouter({
       name: "notification.detail",
       meta: { requiresAuth: true },
       component: () => import("../modules/notification/presentation/pages/notificationDetail.vue")
+    },
+
+    {
+      path: "/service_area",
+      name: "service_area",
+      component: () => import("../modules/service_area/presentation/pages/Service_areaListPage.vue")
     }
     
     

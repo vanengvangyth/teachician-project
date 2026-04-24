@@ -41,7 +41,7 @@ const currentPage = computed(() => {
   return 1;
 });
 
-function openEdit(id: number) {
+function openDetail(id: number) {
   router.push(`/notification/${id}/detail`);
 }
 
@@ -221,7 +221,7 @@ onMounted(loadItems);
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-2">
                 <button class="rounded-md px-3 py-1 text-amber-700 hover:bg-amber-200 transition"
-                  @click="openEdit(item.id)">
+                  @click="openDetail(item.id)">
                   👁️
                 </button>
 
