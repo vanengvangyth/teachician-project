@@ -5,29 +5,34 @@
 
       <!-- userId -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">userId</label>
-        <input v-model="userIdValue" type="text" placeholder="Enter userId"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        <label class="block text-sm font-semibold mb-1">ຊື່</label>
+        <select v-model="userIdValue"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none">
+          <option :value="null">-- ເລືອກຊ່າງ --</option>
+          <option v-for="u in technicians" :key="u.id" :value="u.id">
+            {{ u.user?.fullName }}
+          </option>
+        </select>
       </div>
 
       <!-- descriptionLao -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">Description (Lao)</label>
-        <input v-model="descriptionLaoValue" type="text" placeholder="DescriptionLao"
+        <label class="block text-sm font-semibold mb-1">ຄຳອະທິບາຍ (Lao)</label>
+        <input v-model="descriptionLaoValue" type="text" placeholder="ຄຳອະທິບາຍລາວ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
       </div>
 
       <!-- descriptionEng -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">Description (Eng)</label>
-        <input v-model="descriptionEngValue" type="text" placeholder="DescriptionEng"
+        <label class="block text-sm font-semibold mb-1">ຄຳອະທິບາຍ (Eng)</label>
+        <input v-model="descriptionEngValue" type="text" placeholder="ຄຳອະທິບາຍອອັງກິດ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
       </div>
 
       <!-- years -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">Years</label>
-        <input v-model="yearsValue" type="number" placeholder="Years"
+        <label class="block text-sm font-semibold mb-1">ປະສົບການ</label>
+        <input v-model="yearsValue" type="number" placeholder="ປີ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
       </div>
 
@@ -53,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
@@ -62,9 +67,14 @@ import { TechicianRepositoryImpl } from "../../infrastructure/repositories/techi
 import { CreateTechicianUseCase } from "../../application/use-cases/create-techicians.usecase";
 import { UpdateTechicianUseCase } from "../../application/use-cases/update-techicians.usecase";
 import { GetOneTechicianUseCase } from "../../application/use-cases/get-one-techicians.usecase";
+import { GetUsersUseCase } from "../../../user/application/use-cases/get-users.usecase";
 
 const route = useRoute();
 const emits = defineEmits(["closeForm"]);
+
+const technicians = ref<any[]>([]);
+const userRepo = new TechicianRepositoryImpl();
+const getUsersUseCase = new GetUsersUseCase(userRepo); 
 
 const repo = new TechicianRepositoryImpl();
 const createUseCase = new CreateTechicianUseCase(repo);
@@ -94,6 +104,20 @@ const [userIdValue] = defineField("userId");
 const [descriptionLaoValue] = defineField("descriptionLao");
 const [descriptionEngValue] = defineField("descriptionEng");
 const [yearsValue] = defineField("yearsOfExperience");
+
+const loadUsers = async () => {
+  try {
+    const res = await getUsersUseCase.execute();
+    technicians.value = res.data.map((t: any) => ({
+      id: t.id,
+      user: {
+        fullName: t.user?.fullName ?? "",
+      },
+    }));
+  } catch (e) {
+    console.error("Error loading technicians:", e);
+  }
+};
 
 /* CREATE */
 const onSubmit = handleSubmit(async (values) => {
@@ -159,4 +183,8 @@ watch(
   },
   { immediate: true }
 );
+
+onMounted(() => {
+  loadUsers();
+});
 </script>
