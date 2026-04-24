@@ -5,9 +5,13 @@
 
       <!-- Name -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">jobId</label>
-        <input v-model="jobIdValue" type="number" placeholder="jobId"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none" />
+        <label class="block text-sm font-semibold mb-1">JobId</label>
+        <select v-model="jobIdValue" class="w-full rounded-lg border px-3 py-2 text-sm">
+          <option :value="null">-- ເລືອກ Job --</option>
+          <option v-for="j in jobs" :key="j.id" :value="j.id">
+            {{ j.title || ('#' + j.id) }}
+          </option>
+        </select>
       </div>
 
       <!-- Name -->
@@ -46,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { CommentRepositoryImpl } from "../../infrastructure/repositories/comment.repository.impl";
 import { CreateCommentUseCase } from "../../application/use-cases/create-comments.usecase";
@@ -55,16 +59,31 @@ import { GetOneCommentUseCase } from "../../application/use-cases/get-one-commen
 import { useForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastStore } from "../../../../stores/toast";
+import { JobRepositoryImpl } from "../../../job/infrastructure/repositories/job.repository.impl";
+import { GetAllJobsUseCase } from "../../../job/application/use-cases/get-all-jobs.usecase";
 
 const route = useRoute();
 const emits = defineEmits(["closeForm"]);
 
 const toastStore = useToastStore();
+const jobs = ref<any[]>([]);
+
+const jobRepo = new JobRepositoryImpl();
+const getJobsUseCase = new GetAllJobsUseCase(jobRepo);
 
 const repo = new CommentRepositoryImpl();
 const createUseCase = new CreateCommentUseCase(repo);
 const updateUseCase = new UpdateCommentUseCase(repo);
 const getOneUseCase = new GetOneCommentUseCase(repo);
+
+const loadJobs = async () => {
+  try {
+    const res: any = await getJobsUseCase.execute();
+    jobs.value = res.data || res;
+  } catch (e) {
+    console.error("Load jobs error:", e);
+  }
+}; onMounted(loadJobs);
 
 const contentSchema = yup.object({
   jobId: yup.number().required("jobId is required"),
@@ -166,4 +185,3 @@ watch(
   { immediate: true }
 );
 </script>
-
