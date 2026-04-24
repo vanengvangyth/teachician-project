@@ -68,9 +68,12 @@ import { CreateTechicianUseCase } from "../../application/use-cases/create-techi
 import { UpdateTechicianUseCase } from "../../application/use-cases/update-techicians.usecase";
 import { GetOneTechicianUseCase } from "../../application/use-cases/get-one-techicians.usecase";
 import { GetUsersUseCase } from "../../../user/application/use-cases/get-users.usecase";
+import { useToastStore } from "../../../../stores/toast";
 
 const route = useRoute();
 const emits = defineEmits(["closeForm"]);
+
+const toatStore = useToastStore();
 
 const technicians = ref<any[]>([]);
 const userRepo = new TechicianRepositoryImpl();
@@ -129,9 +132,11 @@ const onSubmit = handleSubmit(async (values) => {
       yearsOfExperience: Number(values.yearsOfExperience),
     });
 
+    toatStore.toast("ບັນທຶກສໍາເລັດແລ້ວ");
     if (res?.id) emits("closeForm", false);
   } catch (e) {
     console.error("Create error:", e);
+    toatStore.toast("ບັນທຶກບໍ່ສໍາເລັດ");
   }
 });
 
@@ -147,9 +152,11 @@ const onUpdate = handleSubmit(async (values) => {
       yearsOfExperience: Number(values.yearsOfExperience),
     });
 
+    toatStore.toast("ແກ້ໄຂສໍາເລັດແລ້ວ");
     if (res?.id) emits("closeForm", false);
   } catch (e) {
     console.error("Update error:", e);
+    toatStore.toast("ແກ້ໄຂບໍ່ສໍາເລັດ");
   }
 });
 

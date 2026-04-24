@@ -78,6 +78,7 @@ import { TechicianRepositoryImpl } from "../../../techician/infrastructure/repos
 import { useForm } from "vee-validate";
 import * as yup from "yup";
 import { getImageUrl } from "../../../../shared/utils/image.util";
+import { useToastStore } from "../../../../stores/toast";
 
 
 const technicianRepo = new TechicianRepositoryImpl();
@@ -85,6 +86,8 @@ const getAllTechiciansUseCase = new GetAllTechiciansUseCase(technicianRepo);
 
 const route = useRoute();
 const emits = defineEmits(["closeForm"]);
+
+const toastStore = useToastStore();
 
 const previewUrl = ref<string>("");
 const technicians = ref<any[]>([]);
@@ -176,12 +179,13 @@ const onSubmit = handleSubmit(async (values) => {
       fileUrl: values.fileUrl,
     });
 
+    toastStore.toast("ສຳເລັດ");
     if (res?.data?.id) {
       emits("closeForm", false);
     }
   } catch (e: any) {
     console.error("Create error:", e);
-    console.log("🔥 backend message:", e.response?.data);
+    toastStore.toast("ບໍ່ສຳເລັດ");
   }
 });
 
@@ -194,11 +198,13 @@ const onUpdate = handleSubmit(async (values) => {
       fileUrl: values.fileUrl,
     });
 
+    toastStore.toast("ອັບເດດສຳເລັດ");  
     if (res?.docId) {
       emits("closeForm", false);
     }
   } catch (e) {
     console.error("Update error:", e);
+    toastStore.toast("ອັບເດດບໍ່ສຳເລັດ");
   }
 });
 

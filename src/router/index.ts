@@ -75,6 +75,24 @@ const router = createRouter({
       name: "document.detail",
       meta: { requiresAuth: true },
       component: () => import("../modules/document/presentation/pages/DocumentDetail.vue")
+    },
+
+    {
+      path: "/attachment",
+      name: "attachment",
+      component: () => import("../modules/attachment/presentation/pages/AttachmentListPage.vue")
+    },
+
+    {
+      path: "/notification",
+      name: "notification",
+      component: () => import("../modules/notification/presentation/pages/NotificationListPage.vue")
+    },
+    {
+      path: "/notification/:id/detail",
+      name: "notification.detail",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/notification/presentation/pages/notificationDetail.vue")
     }
     
     

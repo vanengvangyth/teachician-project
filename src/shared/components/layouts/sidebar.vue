@@ -43,6 +43,20 @@
         </p>
       </RouterLink> 
 
+      <RouterLink class="sidebar-item" to="/attachment">
+        <p>
+          <Paperclip class="w-4 h-4 mx-2" />
+          Attachment
+        </p>
+      </RouterLink> 
+      
+      <RouterLink class="sidebar-item" to="/notification">
+        <p>
+          <Bell class="w-4 h-4 mx-2" />
+          Notification
+        </p>
+      </RouterLink> 
+
       <RouterLink class="sidebar-item" :to="{ path: '/product', query: { page: '1', search: '' } }">
         <p>
           <Package class="w-4 h-4 mx-2" />
@@ -119,6 +133,8 @@ import {
   Briefcase,
   HardHat, 
   MessagesSquare,
+  Paperclip,
+  Bell,
   UserCheck,
   FileText,
   Archive,

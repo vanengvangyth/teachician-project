@@ -8,6 +8,7 @@ import { SoftDeleteCategoryUseCase } from "../../application/use-cases/soft-dele
 import categoryForm from "./categoryForm.vue";
 import Paginator from "../../../../shared/components/paginator.vue";
 import categoryDeletePage from "./categoryDeletePage.vue";
+import { getImageUrl } from "../../../../shared/utils/image.util";
 
 const items = ref<Category[]>([]);
 const search = ref("");
@@ -164,8 +165,9 @@ onMounted(loadItems);
 
               <!-- Icon -->
               <td class="px-6 py-4">
-                <img v-if="item.iconUrl" :src="item.iconUrl" class="w-8 h-8 object-cover rounded" />
-                <span v-else class="text-slate-400 text-xs">No Icon</span>
+                <img v-if="item.iconUrl" :src="getImageUrl(item.iconUrl)" alt="document"
+                  class="w-10 h-10 object-cover rounded border"
+                  @error="(e) => (e.target as HTMLImageElement).src = '/placeholder.png'" />
               </td>
 
               <!-- Category -->
