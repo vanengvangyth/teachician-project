@@ -212,7 +212,10 @@ onMounted(loadItems);
             <!-- isapproved -->
 
             <td class="px-6 py-4 text-sm text-slate-500">
-              {{ item.isApproved ? "ອະນຸມັດ" : "ລໍຖ້າອະນຸມັດ" }}
+              <span class="px-3 py-1 rounded-full font-semibold text-sm"
+                :class="item.isApproved ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                {{ item.isApproved ? 'ອະນຸມັດແລ້ວ' : 'ຍັງບໍ່ໄດ້ອະນຸມັດ' }}
+              </span>
             </td>
 
             <!-- Actions -->
