@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fade"
-  >
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fade">
     <form class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mx-4 overflow-auto">
       <h3 class="text-center text-xl font-bold mb-6">ແບບຟອມແຈ້ງການ</h3>
 
@@ -15,39 +13,31 @@
             {{ u.fullName ?? u.email }}
           </option>
         </select>
+        <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.userId }}</p>
       </div>
 
       <!-- Name -->
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">ຫົວຂໍ້ (Lao)</label>
-        <input
-          v-model="titleLaoValue"
-          type="text"
-          placeholder="Enter titleLao"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none"
-        />
+        <input v-model="titleLaoValue" type="text" placeholder="Enter titleLao"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none" />
+        <p v-if="errors.titleLao" class="text-red-500 text-xs mt-1">{{ errors.titleLao }}</p>
       </div>
 
       <!-- Name -->
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">ຫົວຂໍ້ (Eng)</label>
-        <input
-          v-model="titleEngValue"
-          type="text"
-          placeholder="Enter titleEng"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none"
-        />
+        <input v-model="titleEngValue" type="text" placeholder="Enter titleEng"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none" />
+        <p v-if="errors.titleEng" class="text-red-500 text-xs mt-1">{{ errors.titleEng }}</p>
       </div>
 
       <!-- Name -->
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">ຂໍ້ຄວາມ</label>
-        <input
-          v-model="messageValue"
-          type="text"
-          placeholder="Enter message"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none"
-        />
+        <input v-model="messageValue" type="text" placeholder="Enter message"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none" />
+        <p v-if="errors.message" class="text-red-500 text-xs mt-1">{{ errors.message }}</p>
       </div>
 
       <!-- Type -->
@@ -60,17 +50,15 @@
           <option value="appointment_confirmed">appointment_confirmed</option>
           <option value="review_posted">review_posted</option>
         </select>
+        <p v-if="errors.type" class="text-red-500 text-xs mt-1">{{ errors.type }}</p>
       </div>
 
       <!-- ReferenceId-->
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">ລະຫັດອ້າງອີງ</label>
-        <input
-          v-model="referenceIdValue"
-          type="text"
-          placeholder="Enter referenceId"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none"
-        />
+        <input v-model="referenceIdValue" type="text" placeholder="Enter referenceId"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none" />
+        <p v-if="errors.referenceId" class="text-red-500 text-xs mt-1">{{ errors.referenceId }}</p>
       </div>
 
       <!-- Buttons -->
@@ -118,14 +106,25 @@ const loadUsers = async () => {
   }
 };
 
-const userIdSchema = yup.object({
-  userId: yup.string().required("userId is required"),
+const schema = yup.object({
+  userId: yup.mixed()
+    .test("required", "ກະລຸນາເລືອກຜູ້ໃຊ້", (val) => !!val),
+
+  titleLao: yup.string().required("ກະລຸນາປ້ອນຫົວຂໍ້ລາວ"),
+  titleEng: yup.string().required("ກະລຸນາປ້ອນຫົວຂໍ້ອັງກິດ"),
+  message: yup.string().required("ກະລຸນາປ້ອນຂໍ້ຄວາມ"),
+
+  type: yup.string()
+    .required("ກະລຸນາເລືອກປະເພດ")
+    .oneOf(["job_posted", "bid_received", "appointment_confirmed", "review_posted"], "ປະເພດບໍ່ຖືກຕ້ອງ"),
+
+  referenceId: yup.string().required("ກະລຸນາປ້ອນລະຫັດອ້າງອີງ"),
 });
 
-const { handleSubmit, defineField} = useForm({
-  validationSchema: userIdSchema,
+const { handleSubmit, defineField, errors } = useForm({
+  validationSchema: schema,
   initialValues: {
-    userId: "",
+    userId: null,
     titleLao: "",
     titleEng: "",
     message: "",
@@ -150,9 +149,9 @@ const onSubmit = handleSubmit(async (values: any) => {
       titleEng: values.titleEng,
       message: values.message,
       type: values.type,
-      referenceId: values.referenceId 
+      referenceId: values.referenceId
     });
-    
+
     toastStore.toast("ບັນທຶກສໍາເລັດ");
 
     if (res?.id) {

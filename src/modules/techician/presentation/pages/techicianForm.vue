@@ -13,6 +13,7 @@
             {{ u.user?.fullName }}
           </option>
         </select>
+        <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.userId }}</p>
       </div>
 
       <!-- descriptionLao -->
@@ -20,6 +21,7 @@
         <label class="block text-sm font-semibold mb-1">ຄຳອະທິບາຍ (Lao)</label>
         <input v-model="descriptionLaoValue" type="text" placeholder="ຄຳອະທິບາຍລາວ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <p v-if="errors.descriptionLao" class="text-red-500 text-xs mt-1">{{ errors.descriptionLao }}</p>
       </div>
 
       <!-- descriptionEng -->
@@ -27,6 +29,7 @@
         <label class="block text-sm font-semibold mb-1">ຄຳອະທິບາຍ (Eng)</label>
         <input v-model="descriptionEngValue" type="text" placeholder="ຄຳອະທິບາຍອອັງກິດ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <p v-if="errors.descriptionEng" class="text-red-500 text-xs mt-1">{{ errors.descriptionEng }}</p>
       </div>
 
       <!-- years -->
@@ -34,6 +37,7 @@
         <label class="block text-sm font-semibold mb-1">ປະສົບການ</label>
         <input v-model="yearsValue" type="number" placeholder="ປີ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <p v-if="errors.yearsOfExperience" class="text-red-500 text-xs mt-1">{{ errors.yearsOfExperience }}</p>
       </div>
 
       <!-- Buttons -->
@@ -86,14 +90,33 @@ const getOneUseCase = new GetOneTechicianUseCase(repo);
 
 /* ✅ FIX: proper number schema */
 const schema = yup.object({
-  userId: yup.number().required(),
-  descriptionLao: yup.string().required(),
-  descriptionEng: yup.string().required(),
-  yearsOfExperience: yup.number().required().min(0),
+  userId: yup
+    .mixed()
+    .required("ກະລຸນາເລືອກຊ່າງ")
+    .test("not-null", "ກະລຸນາເລືອກຊ່າງ", (val) => val !== null && val !== undefined),
+
+  descriptionLao: yup
+    .string()
+    .required("ກະລຸນາປ້ອນຄໍາອະທິບາຍພາສາລາວ")
+    .min(3, "ຕ້ອງມີຢ່າງໜ້ອຍ 3 ຕົວອັກສອນ")
+    .max(300, "ຕ້ອງບໍ່ເກີນ 300 ຕົວອັກສອນ"),
+
+  descriptionEng: yup
+    .string()
+    .required("ກະລຸນາປ້ອນຄໍາອະທິບາຍພາສາອັງກິດ")
+    .min(3, "ຕ້ອງມີຢ່າງໜ້ອຍ 3 ຕົວອັກສອນ")
+    .max(300, "ຕ້ອງບໍ່ເກີນ 300 ຕົວອັກສອນ"),
+
+  yearsOfExperience: yup
+    .number()
+    .typeError("ກະລຸນາປ້ອນຕົວເລກ")
+    .required("ກະລຸນາປ້ອນປີປະສົບການ")
+    .min(0, "ປີປະສົບການຕ້ອງບໍ່ຕິດລົບ")
+    .max(50, "ປີປະສົບການຕ້ອງບໍ່ເກີນ 50 ປີ"),
 });
 
 /* ✅ FIX: null instead of "" for numbers */
-const { handleSubmit, defineField, setFieldValue, handleReset } = useForm({
+const { handleSubmit, defineField, setFieldValue, handleReset, errors } = useForm({
   validationSchema: schema,
   initialValues: {
     userId: null,

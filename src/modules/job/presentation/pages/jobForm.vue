@@ -21,6 +21,7 @@
               {{ u.fullName }}
             </option>
           </select>
+          <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.userId }}</p>
         </div>
 
         <!-- Title -->
@@ -28,6 +29,7 @@
           <label class="block text-sm font-semibold mb-1">Title</label>
           <input v-model="titleValue" type="text" placeholder="Title"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
+            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.title }}</p>
         </div>
 
         <!-- Description -->
@@ -35,6 +37,7 @@
           <label class="block text-sm font-semibold mb-1">Description</label>
           <input v-model="descriptionValue" type="text" placeholder="Description"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
+            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.description }}</p>
         </div>
 
         <!-- Category -->
@@ -46,6 +49,7 @@
               {{ c.nameLao }}
             </option>
           </select>
+          <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.categoryId }}</p>
         </div>
 
         <!-- Estimated Duration -->
@@ -53,6 +57,7 @@
           <label class="block text-sm font-semibold mb-1">Estimated Duration</label>
           <input v-model="estimatedDurationValue" type="number" placeholder="Estimated Duration"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
+            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.estimatedDuration }}</p>
         </div>
 
         <!-- Status -->
@@ -60,6 +65,7 @@
           <label class="block text-sm font-semibold mb-1">Status</label>
           <input v-model="statusValue" type="text" placeholder="Status"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
+            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.status }}</p>
         </div>
 
       </div>
@@ -72,6 +78,7 @@
           <label class="block text-sm font-semibold mb-1">Location</label>
           <input v-model="locationValue" type="text" placeholder="Location"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
+            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.location }}</p>
         </div>
 
         <!-- Map -->
@@ -87,6 +94,7 @@
           <label class="block text-sm font-semibold mb-1">Latitude</label>
           <input v-model="latitudeValue" type="text" placeholder="Latitude"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
+            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.latitude }}</p>
         </div>
 
         <!-- Longitude -->
@@ -94,6 +102,7 @@
           <label class="block text-sm font-semibold mb-1">Longitude</label>
           <input v-model="longitudeValue" type="text" placeholder="Longitude"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
+            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.longitude }}</p>
         </div>
 
       </div>
@@ -163,20 +172,24 @@ const fetchCategories = async () => {
   categories.value = res.data;
 };
 
-const emailSchema = yup.object({
-  userId: yup.number().required("User Id is required"),
-  title: yup.string().required("Title is required"),
-  description: yup.string().required("Description is required"),
-  categoryId: yup.number().required("Category Id is required"),
-  location: yup.string().required("Location is required"),
-  latitude: yup.string().required("Latitude is required"),
-  longitude: yup.string().required("Longitude is required"),
-  estimatedDuration: yup.string().required("EstimatedDuration is required"),
-  status: yup.string().required("Status is required"),
+const schema = yup.object({
+  userId: yup.mixed()
+    .test("required", "ກະລຸນາເລືອກ User", (val) => !!val),
+
+  categoryId: yup.mixed()
+    .test("required", "ກະລຸນາເລືອກ Category", (val) => !!val),
+
+  title: yup.string().required("ກະລຸນາປ້ອນ Title"),
+  description: yup.string().required("ກະລຸນາປ້ອນ Description"),
+  location: yup.string().required("ກະລຸນາປ້ອນ Location"),
+  latitude: yup.string().required("ກະລຸນາປ້ອນ Latitude"),
+  longitude: yup.string().required("ກະລຸນາປ້ອນ Longitude"),
+  estimatedDuration: yup.number().typeError("ກະລຸນາປ້ອນຕົວເລກ").required("ກະລຸນາປ້ອນ Estimated Duration").min(0),
+  status: yup.string().required("ກະລຸນາປ້ອນ Status"),
 });
 
-const { handleSubmit, defineField, setFieldValue, handleReset } = useForm({
-  validationSchema: emailSchema,
+const { handleSubmit, defineField, setFieldValue, handleReset, errors } = useForm({
+  validationSchema: schema,
   initialValues: {
     userId: "",
     title: "",

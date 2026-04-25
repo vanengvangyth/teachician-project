@@ -6,28 +6,29 @@
       <!-- nameEng -->
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">ຊື່ (ENG)</label>
-        <input v-model="nameEngValue" type="text"
-          class="w-full rounded-lg border px-3 py-2 text-sm" />
+        <input v-model="nameEngValue" type="text" class="w-full rounded-lg border px-3 py-2 text-sm" />
+        <p v-if="errors.nameEng" class="text-red-500 text-xs mt-1">{{ errors.nameEng }}</p>
+
       </div>
 
       <!-- nameLao -->
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">ຊື່ (LAO)</label>
-        <input v-model="nameLaoValue" type="text"
-          class="w-full rounded-lg border px-3 py-2 text-sm" />
+        <input v-model="nameLaoValue" type="text" class="w-full rounded-lg border px-3 py-2 text-sm" />
+        <p v-if="errors.nameLao" class="text-red-500 text-xs mt-1">{{ errors.nameLao }}</p>
       </div>
 
       <!-- description -->
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">Description (LAO)</label>
-        <input v-model="descriptionLaoValue" type="text"
-          class="w-full rounded-lg border px-3 py-2 text-sm" />
+        <input v-model="descriptionLaoValue" type="text" class="w-full rounded-lg border px-3 py-2 text-sm" />
+        <p v-if="errors.descriptionLao" class="text-red-500 text-xs mt-1">{{ errors.descriptionLao }}</p>
       </div>
 
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">Description (ENG)</label>
-        <input v-model="descriptionEngValue" type="text"
-          class="w-full rounded-lg border px-3 py-2 text-sm" />
+        <input v-model="descriptionEngValue" type="text" class="w-full rounded-lg border px-3 py-2 text-sm" />
+        <p v-if="errors.descriptionEng" class="text-red-500 text-xs mt-1">{{ errors.descriptionEng }}</p>
       </div>
 
       <!-- IMAGE UPLOAD -->
@@ -36,12 +37,12 @@
 
         <!-- preview -->
         <div v-if="previewUrl" class="mb-2">
-          <img :src="previewUrl"
-            class="w-full h-40 object-cover rounded-lg border" />
+          <img :src="previewUrl" class="w-full h-40 object-cover rounded-lg border" />
         </div>
 
         <!-- upload -->
-        <label class="flex justify-center items-center border-2 border-dashed rounded-lg py-4 cursor-pointer hover:border-sky-400">
+        <label
+          class="flex justify-center items-center border-2 border-dashed rounded-lg py-4 cursor-pointer hover:border-sky-400">
           📎 ເລືອກຮູບ
           <input type="file" accept="image/*" class="hidden" @change="onFileChange" />
         </label>
@@ -49,6 +50,7 @@
         <p v-if="iconUrlValue" class="text-xs text-gray-400 mt-1 truncate">
           {{ iconUrlValue }}
         </p>
+        <p v-if="errors.iconUrl" class="text-red-500 text-xs mt-1">{{ errors.iconUrl }}</p>
       </div>
 
       <!-- BUTTON -->
@@ -58,13 +60,11 @@
           Update
         </button>
 
-        <button v-else type="button" @click="onSubmit"
-          class="px-4 py-2 bg-sky-500 text-white rounded-lg">
+        <button v-else type="button" @click="onSubmit" class="px-4 py-2 bg-sky-500 text-white rounded-lg">
           Save
         </button>
 
-        <button type="button" @click="emits('closeForm', false)"
-          class="px-4 py-2 bg-gray-200 rounded-lg">
+        <button type="button" @click="emits('closeForm', false)" class="px-4 py-2 bg-gray-200 rounded-lg">
           Cancel
         </button>
       </div>
@@ -120,14 +120,14 @@ const onFileChange = async (e: Event) => {
 
 /* ===================== FORM ===================== */
 const schema = yup.object({
-  nameEng: yup.string().required(),
-  nameLao: yup.string().required(),
-  descriptionLao: yup.string(),
-  descriptionEng: yup.string(),
-  iconUrl: yup.string(),
+  nameEng: yup.string().required("ກະລຸນາປ້ອນຊື່ອັງກິດ"),
+  nameLao: yup.string().required("ກະລຸນາປ້ອນຊື່ລາວ"),
+  descriptionLao: yup.string().required("ກະລຸນາປ້ອນຄໍາອະທິບາຍລາວ"),
+  descriptionEng: yup.string().required("ກະລຸນາປ້ອນຄໍາອະທິບາຍອັງກິດ"),
+  iconUrl: yup.string().required("ກະລຸນາເລືອກຮູບພາບ"),
 });
 
-const { handleSubmit, defineField, setFieldValue, handleReset } = useForm({
+const { handleSubmit, defineField, setFieldValue, handleReset, errors } = useForm({
   validationSchema: schema,
   initialValues: {
     nameEng: "",
@@ -189,8 +189,8 @@ const editItem = async () => {
 
   // ✅ สำคัญ: show รูปเก่า
   if (res.data.iconUrl) {
-  previewUrl.value = getImageUrl(res.data.iconUrl);
-}
+    previewUrl.value = getImageUrl(res.data.iconUrl);
+  }
 };
 
 /* ===================== WATCH ===================== */

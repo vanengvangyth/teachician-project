@@ -64,6 +64,13 @@
         </p>
       </RouterLink> 
 
+      <RouterLink class="sidebar-item" to="/technician_service">
+        <p>
+          <Wrench class="w-4 h-4 mx-2" />
+          Technician_service
+        </p>
+      </RouterLink>
+
       <RouterLink class="sidebar-item" :to="{ path: '/product', query: { page: '1', search: '' } }">
         <p>
           <Package class="w-4 h-4 mx-2" />
@@ -143,6 +150,7 @@ import {
   Paperclip,
   Bell,
   MapPin,
+  Wrench,
   UserCheck,
   FileText,
   Archive,

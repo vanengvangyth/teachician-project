@@ -12,6 +12,7 @@
             {{ j.title || ('#' + j.id) }}
           </option>
         </select>
+        <p v-if="errors.jobId" class="text-red-500 text-xs mt-1">{{ errors.jobId }}</p>
       </div>
 
       <!-- Name -->
@@ -19,6 +20,7 @@
         <label class="block text-sm font-semibold mb-1">ຄອມເມັ້ນ</label>
         <input v-model="contentValue" type="text" placeholder="ຄອມເມັ້ນ"
           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none" />
+        <p v-if="errors.content" class="text-red-500 text-xs mt-1">{{ errors.content }}</p>
       </div>
 
       <!-- parentId -->
@@ -85,14 +87,15 @@ const loadJobs = async () => {
   }
 }; onMounted(loadJobs);
 
-const contentSchema = yup.object({
-  jobId: yup.number().required("jobId is required"),
-  content: yup.string().required("content is required"),
+const schema = yup.object({
+  jobId: yup.mixed()
+    .test("required", "ກະລຸນາເລືອກ Job", (val) => !!val),
+  content: yup.string().required("ກະລຸນາປ້ອນຄອມເມັ້ນ"),
   parentId: yup.number().nullable().notRequired(),
 });
 
-const { handleSubmit, defineField, setFieldValue, handleReset } = useForm({
-  validationSchema: contentSchema,
+const { handleSubmit, defineField, setFieldValue, handleReset, errors } = useForm({
+  validationSchema: schema,
   initialValues: {
     jobId: "",
     userId: "",

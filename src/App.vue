@@ -5,14 +5,34 @@
       <Toast />
       <Sidebar />
     </nav>
-    <main>
-      <RouterView />
-    </main>
+
+    <div class="main-wrapper">
+      <main>
+        <RouterView />
+      </main>
+
+      <footer class="app-footer">
+        <div class="footer-left">
+          <div class="footer-icon">⚙</div>
+          <div>
+            <div class="footer-name">Admin Dashboard</div>
+            <div class="footer-version">v1.0.0</div>
+          </div>
+        </div>
+        <div class="footer-center">
+          <span class="status-dot"></span>
+          <span>ລະບົບເຮັດວຽກປົກກະຕິ</span>
+        </div>
+        <div class="footer-right">© 2025 Admin System · NestJS · Vue 3</div>
+      </footer>
+    </div>
+
   </div>
   <div v-else style="height: 100%">
     <RouterView />
   </div>
 </template>
+
 <script setup lang="ts">
 import { useLoadingStore } from "./stores/loading";
 import { RouterView } from "vue-router";
@@ -55,12 +75,21 @@ html {
   .layouts {
     display: flex;
     height: 100%;
+    overflow: hidden;
+
+    .main-wrapper {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      overflow: hidden;
+    }
 
     main {
-      margin-right: 20px;
-      margin-top: 20px;
-      margin-left: 20px;
+      margin: 20px 20px 0 20px;
       flex-grow: 1;
+      overflow-y: auto; 
+      display: flex; 
+      flex-direction: column;
 
       .page {
         width: 100%;
@@ -140,5 +169,59 @@ html {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--black-300);
+  background-color: #fff;
+  border-radius: 8px 8px 0 0;
+  font-size: 12px;
+  color: #333;
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .footer-icon {
+      font-size: 20px;
+    }
+
+    .footer-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .footer-version {
+      font-size: 11px;
+      color: #666;
+    }
+  }
+
+  .footer-center {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #333;
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: #1D9E75;
+    }
+  }
+
+  .footer-right {
+    color: #666; 
+  }
 }
 </style>

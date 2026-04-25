@@ -17,8 +17,8 @@
             {{ u.user?.fullName ? u.user.fullName : u.user?.email }}
           </option>
         </select>
+        <p v-if="errors.technicianId" class="text-red-500 text-xs mt-1">{{ errors.technicianId }}</p>
 
-        <span class="text-red-500 text-xs" v-if="errors.technicianId">ກະລຸນາເລືອກ</span>
       </div>
 
       <!-- Province -->
@@ -26,6 +26,7 @@
         <label class="block text-sm font-semibold mb-1">ແຂວງ</label>
         <input v-model="provinceValue" class="w-full rounded-lg border px-3 py-2 text-sm" type="text"
           placeholder="ແຂວງ" />
+          <p v-if="errors.province" class="text-red-500 text-xs mt-1">{{ errors.province }}</p>
       </div>
 
       <!-- District -->
@@ -33,6 +34,7 @@
         <label class="block text-sm font-semibold mb-1">ເມືອງ</label>
         <input v-model="districtValue" class="w-full rounded-lg border px-3 py-2 text-sm" type="text"
           placeholder="ເມືອງ" />
+          <p v-if="errors.district" class="text-red-500 text-xs mt-1">{{ errors.district }}</p>
       </div>
 
       <!-- Village -->
@@ -40,6 +42,7 @@
         <label class="block text-sm font-semibold mb-1">ບ້ານ</label>
         <input v-model="villageValue" class="w-full rounded-lg border px-3 py-2 text-sm" type="text"
           placeholder="ບ້ານ" />
+          <p v-if="errors.village" class="text-red-500 text-xs mt-1">{{ errors.village }}</p>
       </div>
 
       <!-- Buttons -->
@@ -87,10 +90,12 @@ const updateUseCase = new UpdateService_areaUseCase(repo);
 const getOneUseCase = new GetOneService_areaUseCase(repo);
 
 const schema = yup.object({
-  technicianId: yup.number().required(),
-  province: yup.string().required(),
-  district: yup.string().required(),
-  village: yup.string().required(),
+  technicianId: yup.mixed()
+    .test("required", "ກະລຸນາເລືອກຊ່າງ", (val) => !!val),
+
+  province: yup.string().required("ກະລຸນາປ້ອນແຂວງ"),
+  district: yup.string().required("ກະລຸນາປ້ອນເມືອງ"),
+  village: yup.string().required("ກະລຸນາປ້ອນບ້ານ"),
 });
 
 const { handleSubmit, defineField, setFieldValue, resetForm, errors } = useForm({

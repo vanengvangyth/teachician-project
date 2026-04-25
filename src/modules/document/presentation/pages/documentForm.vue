@@ -13,6 +13,7 @@
             {{ u.user?.fullName }}
           </option>
         </select>
+        <p v-if="errors.technicianId" class="text-red-500 text-xs mt-1">{{ errors.technicianId }}</p>
       </div>
 
       <!-- documentType -->
@@ -26,6 +27,7 @@
           <option value="portfolio">ພອດໂຟລິໂອ</option>
           <option value="other">ອື່ນໆ</option>
         </select>
+        <p v-if="errors.documentType" class="text-red-500 text-xs mt-1">{{ errors.documentType }}</p>
       </div>
 
       <!-- fileUrl -->
@@ -43,6 +45,8 @@
         </label>
 
         <p v-if="fileUrlValue" class="text-xs text-slate-400 mt-1 truncate">{{ fileUrlValue }}</p>
+
+        <p v-if="errors.fileUrl" class="text-red-500 text-xs mt-1">{{ errors.fileUrl }}</p>
       </div>
 
       <!-- Buttons -->
@@ -132,7 +136,7 @@ const documentSchema = yup.object({
   fileUrl: yup.string().required("ກະລຸນາເລືອກຮູບພາບ"),
 });
 
-const { handleSubmit, defineField, setFieldValue, handleReset } = useForm({
+const { handleSubmit, defineField, setFieldValue, handleReset, errors } = useForm({
   validationSchema: documentSchema,
   initialValues: {
     technicianId: null as number | null, 
