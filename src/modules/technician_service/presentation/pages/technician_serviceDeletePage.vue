@@ -199,7 +199,7 @@ function askAction(id: number, type: "delete" | "restore") {
 async function confirmAction() {
   if (!selectedId.value || !actionType.value) return;
 
-  toastStore.toast("ກໍາລັງຢືນຢັນ...");
+  toastStore.toast("ສຳເລັດ...");
   try {
     if (actionType.value === "delete") {
       await hardDelete.execute(selectedId.value);
@@ -212,7 +212,7 @@ async function confirmAction() {
 
   } catch (error) {
     console.error("🔥 Action failed:", error);
-    toastStore.toast("ຢືນຢັນບໍ່ສໍາເລັດ");
+    toastStore.toast("ບໍ່ສຳເລັດ...");
   } finally {
     showConfirm.value = false;
     selectedId.value = null;

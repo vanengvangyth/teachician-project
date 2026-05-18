@@ -123,8 +123,14 @@ const router = createRouter({
       name: "technician_service.detail",
       meta: { requiresAuth: true },
       component: () => import("../modules/technician_service/presentation/pages/technician_serviceDetail.vue")
-    }
+    },
     
+    //systemlog
+    {
+      path: "/systemlog",
+      name: "systemlog",
+      component: () => import("../modules/systemlog/presentation/pages/SystemlogListPage.vue")
+    },
     
     // {
     //   path: "/product",

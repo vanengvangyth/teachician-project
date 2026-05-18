@@ -3,10 +3,20 @@
     <Loading :isloading="isLoading" />
     <nav>
       <Toast />
-      <Sidebar />
+      <Sidebar :is-open="isSidebarOpen" @toggle="isSidebarOpen = !isSidebarOpen" />
     </nav>
 
     <div class="main-wrapper">
+      <div class="topbar">
+        <div class="topbar-spacer" />
+        <div class="topbar-profile">
+          <img class="profile-avatar" src="/placeholder.png" alt="avatar" />
+          <div class="profile-info">
+            <span class="profile-name">{{ store.user?.email ?? 'Admin' }}</span>
+            <span class="profile-role">{{ store.user?.role ?? 'Administrator' }}</span>
+          </div>
+        </div>
+      </div>
       <main>
         <RouterView />
       </main>
@@ -23,7 +33,7 @@
           <span class="status-dot"></span>
           <span>ລະບົບເຮັດວຽກປົກກະຕິ</span>
         </div>
-        <div class="footer-right">© 2025 Admin System · NestJS · Vue 3</div>
+        <div class="footer-right">© 2026 Admin System · NestJS · Vue 3</div>
       </footer>
     </div>
 
@@ -52,17 +62,22 @@ const { isLoading } = storeToRefs(loadingStore);
 const isloading = ref<any>(false);
 
 const store = useAuthStore();
+console.log('user object:', JSON.stringify(store.user))
 
 const toastStore = useToastStore();
 
 const { toast } = toastStore;
 
 const { token } = storeToRefs(store);
+
+const isSidebarOpen = ref(true)
+
 </script>
 <style lang="scss">
 body,
 html {
   font-family: var(--font-family);
+  font-family: 'Noto Sans Lao', 'DM Sans', sans-serif;
   height: 100%;
   font-weight: 500;
   overflow-x: hidden;
@@ -87,8 +102,8 @@ html {
     main {
       margin: 20px 20px 0 20px;
       flex-grow: 1;
-      overflow-y: auto; 
-      display: flex; 
+      overflow-y: auto;
+      display: flex;
       flex-direction: column;
 
       .page {
@@ -140,6 +155,83 @@ html {
   }
 }
 
+.topbar {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+  border-bottom: 1px solid #64748bc1;
+
+  .toggle-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--black-300);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--black-900);
+    transition: background 0.15s ease;
+
+    &:hover {
+      background-color: var(--primary-100);
+    }
+  }
+
+  .topbar-spacer {
+    flex: 1;
+  }
+
+  .topbar-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background-color: var(--primary-100);
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+
+      .profile-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--black-900);
+      }
+
+      .profile-role {
+        font-size: 11px;
+        color: var(--black-400);
+      }
+    }
+
+    .profile-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background-color: var(--primary-900);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+  }
+}
+
 .ellipse {
   display: -webkit-box !important;
   -webkit-line-clamp: 1;
@@ -179,7 +271,7 @@ html {
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   margin-top: 1rem;
-  border-top: 1px solid var(--black-300);
+  border-top: 1px solid #64748bc1;
   background-color: #fff;
   border-radius: 8px 8px 0 0;
   font-size: 12px;
@@ -221,7 +313,7 @@ html {
   }
 
   .footer-right {
-    color: #666; 
+    color: #666;
   }
 }
 </style>

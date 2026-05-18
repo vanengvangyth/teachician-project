@@ -1,106 +1,122 @@
 <template>
-  <div class="sidebar">
+  <div class="sidebar" :class="{ 'sidebar--collapsed': !isOpen }">
+    <div class="sidebar-top">
+      <button class="toggle-btn" @click="emit('toggle')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <rect x="2" y="3" width="14" height="2" rx="1" fill="currentColor" />
+          <rect x="2" y="8" width="14" height="2" rx="1" fill="currentColor" />
+          <rect x="2" y="13" width="10" height="2" rx="1" fill="currentColor" />
+        </svg>
+      </button>
+    </div>
     <div class="sidebar-items">
       <RouterLink class="sidebar-item" to="/">
         <p>
           <Home class="w-4 h-4 mx-2" />
-          ໜ້າຫຼັກ
+          <span class="label">ໜ້າຫຼັກ</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/category">
         <p>
           <List class="w-4 h-4 mx-2" />
-          Category
+          <span class="label">Category</span>
         </p>
       </RouterLink>
 
-       <RouterLink class="sidebar-item" to="/comment">
+      <RouterLink class="sidebar-item" to="/comment">
         <p>
           <MessagesSquare class="w-4 h-4 mx-2" />
-          Comment
+          <span class="label">Comment</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/job">
         <p>
           <Briefcase class="w-4 h-4 mx-2" />
-          Job
+          <span class="label">Job</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/techician">
         <p>
           <HardHat class="w-4 h-4 mx-2" />
-          Technician
+          <span class="label">Technician</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/document">
         <p>
           <FileText class="w-4 h-4 mx-2" />
-          Document
+          <span class="label">Document</span>
         </p>
-      </RouterLink> 
+      </RouterLink>
 
       <RouterLink class="sidebar-item" to="/attachment">
         <p>
           <Paperclip class="w-4 h-4 mx-2" />
-          Attachment
+          <span class="label">Attachment</span>
         </p>
-      </RouterLink> 
-      
+      </RouterLink>
+
       <RouterLink class="sidebar-item" to="/notification">
         <p>
           <Bell class="w-4 h-4 mx-2" />
-          Notification
+          <span class="label">Notification</span>
         </p>
-      </RouterLink> 
+      </RouterLink>
 
       <RouterLink class="sidebar-item" to="/service_area">
         <p>
           <MapPin class="w-4 h-4 mx-2" />
-          Service_area
+          <span class="label">Service_area</span>
         </p>
-      </RouterLink> 
+      </RouterLink>
 
       <RouterLink class="sidebar-item" to="/technician_service">
         <p>
           <Wrench class="w-4 h-4 mx-2" />
-          Technician_service
+          <span class="label">Technician_service</span>
+        </p>
+      </RouterLink>
+
+      <RouterLink class="sidebar-item" to="/systemlog">
+        <p>
+          <ScrollText class="w-4 h-4 mx-2" />
+          <span class="label">Systemlog</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" :to="{ path: '/product', query: { page: '1', search: '' } }">
         <p>
           <Package class="w-4 h-4 mx-2" />
-          Product
+          <span class="label">Product</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/test">
         <p>
           <TestTube class="w-4 h-4 mx-2" />
-          Test
+          <span class="label">Test</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/stock-history">
         <p>
           <Archive class="w-4 h-4 mx-2" />
-          StockHistory
+          <span class="label">StockHistory</span>
         </p>
       </RouterLink>
 
       <!-- GROUP -->
-      <div class="sidebar-item has-child" :class="{ expanded }">
-        <p @click="expanded = !expanded">
+      <div class="sidebar-item has-child" :class="{ expanded: expanded && isOpen }">
+        <p @click="isOpen && (expanded = !expanded)">
           <Folder class="w-4 h-4 mx-2" />
-          ການຈັດການ
-          <ChevronRight class="chevron" />
+          <span class="label">ການຈັດການ</span>
+          <ChevronRight class="chevron label" />
         </p>
 
-        <ul>
+        <ul v-show="isOpen && expanded">
           <li>
             <RouterLink to="/manage/benefit">Benefit</RouterLink>
           </li>
@@ -122,14 +138,14 @@
       <RouterLink class="sidebar-item" :to="{ path: '/user', query: { page: '1', search: '' } }">
         <p>
           <Users class="w-4 h-4 mx-2" />
-          ຂໍ້ມູນພະນັກງານ
+          <span class="label">ຂໍ້ມູນພະນັກງານ</span>
         </p>
       </RouterLink>
     </div>
 
     <a class="logout" @click="log_Out">
       <LogOut class="w-4 h-4 mx-2" />
-      Logout
+      <span class="label">Logout</span>
     </a>
   </div>
 </template>
@@ -145,12 +161,13 @@ import {
   Package,
   TestTube,
   Briefcase,
-  HardHat, 
+  HardHat,
   MessagesSquare,
   Paperclip,
   Bell,
   MapPin,
   Wrench,
+  ScrollText,
   UserCheck,
   FileText,
   Archive,
@@ -160,10 +177,16 @@ import {
   ChevronRight,
 } from 'lucide-vue-next';
 
+defineProps<{
+  isOpen: boolean
+}>()
+
 const store = useAuthStore();
 const { logOut } = store;
 const expanded = ref(false);
 const route = useRoute();
+
+const emit = defineEmits(['toggle'])
 
 watch(
   route,
@@ -193,7 +216,71 @@ const log_Out = async () => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-right: 1px solid var(--black-300);
+  background: #5370917b;
+  border-right: 1px solid #64748b65;
+
+  width: 220px;
+  min-width: 220px;
+  transition: width 0.3s ease, min-width 0.3s ease;
+  overflow: hidden;
+
+
+  &--collapsed {
+    width: 56px;
+    min-width: 56px;
+
+    // ເຊື່ອງ label text
+    .label {
+      display: none;
+    }
+
+    // icon ໃຫ້ center
+    p {
+      justify-content: center;
+      padding: 0;
+      padding: 0 !important;
+    }
+
+    svg {
+      margin: 0 !important;
+    }
+
+    // logout icon center
+    .logout {
+      justify-content: center;
+      padding: 0;
+    }
+  }
+}
+
+.sidebar-top {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 12px;
+}
+
+.toggle-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #000000;
+  cursor: pointer;
+  transition: all .2s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, .12);
+
+  filter:
+    drop-shadow(0 0 2px rgba(37, 99, 235, .8)) drop-shadow(0 0 8px rgba(37, 99, 235, .5));
 }
 
 .sidebar-items {
@@ -202,19 +289,22 @@ const log_Out = async () => {
   flex-direction: column;
   gap: 0.5rem;
   flex-grow: 1;
+  overflow: hidden;
 
   .sidebar-item {
     user-select: none;
 
     &.router-link-active {
       p {
-        background-color: var(--primary-100);
-        color: var(--primary-900);
-        box-shadow: 0 0 0 1px var(--primary-900);
+        background-color: transparent;
+        color: #0051ff;
+        text-shadow:
+          0 0 16px rgba(255, 255, 255, 0.4);
       }
 
-      i {
-        font-weight: 700;
+      svg {
+        filter:
+          drop-shadow(0 0 2px rgba(37, 99, 235, 0.8)) drop-shadow(0 0 6px rgba(37, 99, 235, 0.6)) drop-shadow(0 0 12px rgba(37, 99, 235, 0.6));
       }
     }
 
@@ -231,6 +321,7 @@ const log_Out = async () => {
       border-radius: 6px;
       padding: 0 1rem;
       font-size: var(--sm-font);
+      white-space: nowrap;
     }
 
     i {
@@ -243,34 +334,16 @@ const log_Out = async () => {
     align-items: flex-start;
 
     p {
+      width: 100%;
       display: flex;
       align-items: center;
 
-      span {
+      .chevron {
         margin-left: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        &::before {
-          content: "";
-          height: 2px;
-          border-radius: 2px;
-          width: 12px;
-          background-color: var(--black-900);
-          position: absolute;
-          transition: all ease-in-out 0.15s;
-        }
-
-        &::after {
-          content: "";
-          height: 12px;
-          width: 2px;
-          background-color: var(--black-900);
-          position: absolute;
-          border-radius: 2px;
-          transition: all ease-in-out 0.15s;
-        }
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        transition: transform 0.15s ease;
       }
     }
 
@@ -326,16 +399,8 @@ const log_Out = async () => {
       p {
         color: var(--primary-900);
 
-        span {
-          &::after {
-            background-color: var(--primary-100);
-            z-index: 0;
-          }
-
-          &::before {
-            z-index: 1;
-            background-color: var(--primary-900);
-          }
+        .chevron {
+          transform: rotate(90deg);
         }
       }
 
@@ -355,7 +420,7 @@ const log_Out = async () => {
   justify-content: center;
   cursor: pointer;
   gap: 0.5rem;
-  color: var(--black-500);
+  color: red;
   transition: all ease-in-out 0.15s;
 
   &:hover {

@@ -204,12 +204,12 @@ async function confirmAction() {
       await restore.execute(selectedId.value);
     }
 
-    toastStore.toast("ສຳເລັດແລ້ວ");
+    toastStore.toast("ສຳເລັດ...");
     await loadItems();
 
   } catch (e) {
     console.error(e);
-    toastStore.toast("ຜິດພາດ");
+    toastStore.toast("ບໍ່ສຳເລັດ...");
   } finally {
     resetAction();
   }
