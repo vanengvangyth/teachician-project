@@ -19,11 +19,6 @@ const router = createRouter({
       name: "user",
       component: () => import("../modules/user/presentation/pages/UserListPage.vue")
     },
-    {
-      path: "/test",
-      name: "test",
-      component: () => import("../modules/test/presentation/pages/TestListPage.vue")
-    },
 
     // Category
     {

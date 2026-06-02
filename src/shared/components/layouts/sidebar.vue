@@ -87,27 +87,6 @@
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item" :to="{ path: '/product', query: { page: '1', search: '' } }">
-        <p>
-          <Package class="w-4 h-4 mx-2" />
-          <span class="label">Product</span>
-        </p>
-      </RouterLink>
-
-      <RouterLink class="sidebar-item" to="/test">
-        <p>
-          <TestTube class="w-4 h-4 mx-2" />
-          <span class="label">Test</span>
-        </p>
-      </RouterLink>
-
-      <RouterLink class="sidebar-item" to="/stock-history">
-        <p>
-          <Archive class="w-4 h-4 mx-2" />
-          <span class="label">StockHistory</span>
-        </p>
-      </RouterLink>
-
       <!-- GROUP -->
       <div class="sidebar-item has-child" :class="{ expanded: expanded && isOpen }">
         <p @click="isOpen && (expanded = !expanded)">
@@ -158,8 +137,6 @@ import { useAuthStore } from "../../../stores/auth";
 import {
   Home,
   List,
-  Package,
-  TestTube,
   Briefcase,
   HardHat,
   MessagesSquare,
@@ -168,9 +145,7 @@ import {
   MapPin,
   Wrench,
   ScrollText,
-  UserCheck,
   FileText,
-  Archive,
   Folder,
   Users,
   LogOut,
