@@ -57,6 +57,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
       component: () => import("../modules/job/presentation/pages/jobForm.vue")
     },
+    {
+      path: "/job/:id/detail",
+      name: "job.detail",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/job/presentation/pages/jobDetail.vue")
+    },
 
     //Techician
     {

@@ -289,7 +289,7 @@ const log_Out = async () => {
   flex-direction: column;
   gap: 0.5rem;
   flex-grow: 1;
-  overflow: hidden;
+  overflow: auto;
 
   .sidebar-item {
     user-select: none;

@@ -34,4 +34,16 @@ export class TechicianRepositoryImpl implements TechicianRepository {
   async hardDelete(id: any) {
     return techicianApi.hardDelete(id);
   }
+ // ✅ ใช้ techician.id (ไม่ใช่ userId) เพราะ backend ใช้ PUT /techicians/:id
+  async approve(id: number): Promise<any> {
+    return techicianApi.approve(id);
+  }
+
+  async reject(id: number): Promise<any> {
+    return techicianApi.reject(id);
+  }
+
+  async getPending(params?: { page?: any; perPage?: any, search?: string }) {
+    return techicianApi.getPending(params?.page, params?.perPage, params?.search);
+  }
 }

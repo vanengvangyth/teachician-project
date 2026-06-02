@@ -29,7 +29,7 @@
           <label class="block text-sm font-semibold mb-1">Title</label>
           <input v-model="titleValue" type="text" placeholder="Title"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
-            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.title }}</p>
+          <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.title }}</p>
         </div>
 
         <!-- Description -->
@@ -37,7 +37,7 @@
           <label class="block text-sm font-semibold mb-1">Description</label>
           <input v-model="descriptionValue" type="text" placeholder="Description"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
-            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.description }}</p>
+          <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.description }}</p>
         </div>
 
         <!-- Category -->
@@ -57,7 +57,7 @@
           <label class="block text-sm font-semibold mb-1">Estimated Duration</label>
           <input v-model="estimatedDurationValue" type="number" placeholder="Estimated Duration"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
-            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.estimatedDuration }}</p>
+          <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.estimatedDuration }}</p>
         </div>
 
         <!-- Status -->
@@ -65,7 +65,7 @@
           <label class="block text-sm font-semibold mb-1">Status</label>
           <input v-model="statusValue" type="text" placeholder="Status"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
-            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.status }}</p>
+          <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.status }}</p>
         </div>
 
       </div>
@@ -78,15 +78,13 @@
           <label class="block text-sm font-semibold mb-1">Location</label>
           <input v-model="locationValue" type="text" placeholder="Location"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
-            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.location }}</p>
+          <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.location }}</p>
         </div>
 
         <!-- Map -->
         <div>
-          <label class="block text-sm font-semibold mb-1">Map</label>
-          <div class="w-full h-48 bg-slate-200 rounded-lg flex items-center justify-center text-slate-500">
-            Map Preview
-          </div>
+          <label class="block text-sm font-semibold mb-1">Map (ຄລິກ ຫຼື ລາກເຂັມເພື່ອປັກໝຸດ)</label>
+          <div ref="mapContainer" class="w-full h-64 rounded-lg border border-slate-200 shadow-sm z-0"></div>
         </div>
 
         <!-- Latitude -->
@@ -94,7 +92,7 @@
           <label class="block text-sm font-semibold mb-1">Latitude</label>
           <input v-model="latitudeValue" type="text" placeholder="Latitude"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
-            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.latitude }}</p>
+          <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.latitude }}</p>
         </div>
 
         <!-- Longitude -->
@@ -102,7 +100,7 @@
           <label class="block text-sm font-semibold mb-1">Longitude</label>
           <input v-model="longitudeValue" type="text" placeholder="Longitude"
             class="w-full rounded-lg border px-3 py-2 text-sm" />
-            <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.longitude }}</p>
+          <p v-if="errors.userId" class="text-red-500 text-xs mt-1">{{ errors.longitude }}</p>
         </div>
 
       </div>
@@ -140,6 +138,26 @@ import * as yup from "yup";
 import { userApi } from "../../../user/infrastructure/api/user.api";
 import { categoryApi } from "../../../category/infrastructure/api/category.api";
 import { useToastStore } from "../../../../stores/toast";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix Vite asset loader issues for default Leaflet markers
+import markerIconUrl from "leaflet/dist/images/marker-icon.png";
+import markerIconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
+import markerShadowUrl from "leaflet/dist/images/marker-shadow.png";
+
+const DefaultIcon = L.icon({
+  iconUrl: markerIconUrl,
+  iconRetinaUrl: markerIconRetinaUrl,
+  shadowUrl: markerShadowUrl,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 
 const route = useRoute();
@@ -212,6 +230,48 @@ const [latitudeValue] = defineField("latitude");
 const [longitudeValue] = defineField("longitude");
 const [estimatedDurationValue] = defineField("estimatedDuration");
 const [statusValue] = defineField("status");
+
+const mapContainer = ref<HTMLElement | null>(null);
+let map: L.Map | null = null;
+let marker: L.Marker | null = null;
+
+// Helper to update coordinates fields and place/move the marker
+const updateCoordinates = (lat: number, lng: number) => {
+  setFieldValue("latitude", lat.toFixed(6));
+  setFieldValue("longitude", lng.toFixed(6));
+
+  if (marker) {
+    marker.setLatLng([lat, lng]);
+  } else if (map) {
+    marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+    marker.on("dragend", () => {
+      if (marker) {
+        const position = marker.getLatLng();
+        updateCoordinates(position.lat, position.lng);
+      }
+    });
+  }
+};
+
+// Sync map state based on form input values (e.g. during load or edit)
+const syncMapFromInputs = () => {
+  const lat = Number(latitudeValue.value);
+  const lng = Number(longitudeValue.value);
+  if (map && !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+    map.setView([lat, lng], 15);
+    if (marker) {
+      marker.setLatLng([lat, lng]);
+    } else {
+      marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+      marker.on("dragend", () => {
+        if (marker) {
+          const position = marker.getLatLng();
+          updateCoordinates(position.lat, position.lng);
+        }
+      });
+    }
+  }
+};
 
 // Create
 const onSubmit = handleSubmit(async (values: any) => {
@@ -296,6 +356,11 @@ const editItem = async (id: number) => {
   setFieldValue("longitude", res.data.longitude);
   setFieldValue("estimatedDuration", res.data.estimatedDuration);
   setFieldValue("status", res.data.status);
+
+  // Sync map center and marker position after loading edit item
+  setTimeout(() => {
+    syncMapFromInputs();
+  }, 150);
 };
 
 
@@ -312,8 +377,78 @@ watch(
   { immediate: true }
 );
 
-onMounted(() => {
-  fetchUsers();
-  fetchCategories();
+onMounted(async () => {
+  await Promise.all([fetchUsers(), fetchCategories()]);
+
+  if (mapContainer.value) {
+    const initialLat = Number(latitudeValue.value) || 17.9757;
+    const initialLng = Number(longitudeValue.value) || 102.6331;
+    const initialZoom = (latitudeValue.value && longitudeValue.value) ? 15 : 13;
+
+    map = L.map(mapContainer.value).setView([initialLat, initialLng], initialZoom);
+
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics',
+        maxZoom: 19,
+      }
+    ).addTo(map);
+
+    if (latitudeValue.value && longitudeValue.value) {
+      const lat = Number(latitudeValue.value);
+      const lng = Number(longitudeValue.value);
+      marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+      marker.on("dragend", () => {
+        if (marker) {
+          const position = marker.getLatLng();
+          updateCoordinates(position.lat, position.lng);
+        }
+      });
+    }
+
+    map.on("click", (e: L.LeafletMouseEvent) => {
+      const { lat, lng } = e.latlng;
+      updateCoordinates(lat, lng);
+    });
+
+    // ✅ อยู่ใน if block — map ไม่เป็น null แน่นอน
+    const FindMeControl = L.Control.extend({
+      options: { position: 'topright' },
+      onAdd() {
+        const btn = L.DomUtil.create('button', '');
+        btn.innerHTML = '📍 Find Me';
+        btn.style.cssText = `
+          background: white;
+          border: 2px solid rgba(0,0,0,0.2);
+          border-radius: 8px;
+          padding: 6px 10px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        `;
+        btn.onmouseover = () => btn.style.background = '#f0f9ff';
+        btn.onmouseout = () => btn.style.background = 'white';
+
+        L.DomEvent.on(btn, 'click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const { latitude, longitude } = pos.coords;
+              map?.setView([latitude, longitude], 16);
+              updateCoordinates(latitude, longitude);
+            },
+            () => alert('ບໍ່ສາມາດດຶງຕຳແໜ່ງໄດ້'),
+            { enableHighAccuracy: true }
+          );
+        });
+
+        return btn;
+      }
+    });
+
+    new FindMeControl().addTo(map);
+  }
 });
 </script>

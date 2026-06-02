@@ -1,110 +1,217 @@
 <template>
-  <div class="min-h-screen p-6 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg">
+  <div class="min-h-screen p-6 bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50">
+    <!-- TOP BAR -->
+    <div class="max-w-4xl mx-auto flex items-center justify-between mb-6 bg-white/80 backdrop-blur-md px-6 py-4 rounded-2xl shadow-sm border border-slate-100">
+      <div class="flex items-center gap-3">
+        <button @click="goBack" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+        </button>
+        <h1 class="text-xl font-bold text-slate-800">ລາຍລະອຽດຊ່າງ</h1>
+      </div>
 
-    <!-- HEADER -->
-    <div class="flex items-center justify-between p-6 border-b">
-      <h1 class="text-2xl font-bold text-slate-800">ລາຍລະອຽດຊ່າງ</h1>
-
-      <button @click="goBack" class="px-4 py-2 bg-slate-200 rounded-lg">
-        ກັບຄືນ
-      </button>
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-2">
+        <template v-if="item">
+          <!-- When not approved yet: show Approve and Reject buttons -->
+          <template v-if="!item.isApproved">
+            <button @click="handleApprove" :disabled="isActionLoading"
+              class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-md shadow-emerald-200 transition flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+              ອະນຸມັດ
+            </button>
+            <button @click="handleReject" :disabled="isActionLoading"
+              class="px-4 py-2 bg-rose-500 hover:bg-rose-600 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-md shadow-rose-200 transition flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              ປະຕິເສດ
+            </button>
+          </template>
+          <!-- When already approved: show Cancel Approval button -->
+          <template v-else>
+            <button @click="handleReject" :disabled="isActionLoading"
+              class="px-4 py-2 bg-slate-500 hover:bg-slate-600 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-md shadow-slate-200 transition flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              ຍົກເລີກການອະນຸມັດ
+            </button>
+          </template>
+        </template>
+      </div>
     </div>
 
-    <!-- CONTENT -->
-    <div class="max-w-4xl mx-auto mt-8 bg-white rounded-xl shadow p-6">
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        <!-- LEFT COLUMN -->
-        <div class="space-y-4">
-
-          <div>
-            <label class="block text-sm font-semibold mb-1">User</label>
-            <div class="w-full rounded-lg border bg-gray-50 px-3 py-2">
-              {{ item?.user?.fullNam || item?.user?.fullName || "-" }}
+    <!-- MAIN PROFILE CARD -->
+    <div v-if="item" class="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl shadow-slate-100/80 border border-slate-100 overflow-hidden transition-all duration-300">
+      
+      <!-- HERO BANNER BACKGROUND -->
+      <div class="h-36 bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 relative">
+        <div class="absolute -bottom-16 left-8 flex items-end gap-6">
+          <!-- Profile Image container -->
+          <div class="relative group">
+            <div class="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white bg-slate-100 shadow-md flex items-center justify-center">
+              <img v-if="item.user?.profileImageUrl" :src="item.user.profileImageUrl" alt="Profile Image" class="w-full h-full object-cover" />
+              <div v-else class="w-full h-full bg-gradient-to-tr from-sky-400 to-indigo-500 flex items-center justify-center text-white text-3xl font-black">
+                {{ item.user?.fullName?.charAt(0).toUpperCase() || "T" }}
+              </div>
+            </div>
+            <!-- Verification icon badge overlay -->
+            <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full border-4 border-white flex items-center justify-center shadow-md"
+              :class="item.isApproved ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'">
+              <svg v-if="item.isApproved" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                <path fill-rule="evenodd" d="M16.403 4.579a.75.75 0 01.075 1.057l-1.5 1.875a.75.75 0 01-1.132.073l-3.75-3.75a.75.75 0 011.06-1.06l3.11 3.11 1.09-1.363a.75.75 0 011.057-.075z" clip-rule="evenodd"/>
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-1.5 0a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" clip-rule="evenodd" />
+              </svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 animate-pulse">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clip-rule="evenodd" />
+              </svg>
             </div>
           </div>
 
-          <div>
-            <label class="block text-sm font-semibold mb-1">Email</label>
-            <div class="w-full rounded-lg border bg-gray-50 px-3 py-2">
-              {{ item?.user?.email || "-" }}
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1">Description (Lao)</label>
-            <div class="w-full rounded-lg border bg-gray-50 px-3 py-2">
-              {{ item?.descriptionLao || "-" }}
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1">Description (Eng)</label>
-            <div class="w-full rounded-lg border bg-gray-50 px-3 py-2">
-              {{ item?.descriptionEng || "-" }}
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1">Years of Experience</label>
-            <div class="w-full rounded-lg border bg-gray-50 px-3 py-2">
-              {{ item?.yearsOfExperience ?? "-" }}
-            </div>
-          </div>
-
-        </div>
-
-        <!-- RIGHT COLUMN -->
-        <div class="space-y-4">
-
-          <div>
-            <label class="block text-sm font-semibold mb-1">Total Rating</label>
-            <div class="w-full rounded-lg border bg-gray-50 px-3 py-2">
-              {{ item?.totalRating ?? "-" }}
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1">Approved At</label>
-            <div class="w-full rounded-lg border bg-gray-50 px-3 py-2">
-              {{ item?.approvedAt ? new Date(item.approvedAt).toLocaleString() : "-" }}
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1">Created At</label>
-            <div class="w-full rounded-lg border bg-gray-50 px-3 py-2">
-              {{ item?.createdAt ? new Date(item.createdAt).toLocaleString() : "-" }}
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1">Approved</label>
-            <div class="w-full rounded-lg border bg-gray-50 px-3 py-2">
-              <span :class="item?.isApproved ? 'text-green-600' : 'text-red-500'">
-                {{ item?.isApproved ? "Approved" : "Not Approved" }}
+          <!-- Name and Badges -->
+          <div class="mb-2">
+            <div class="flex items-center gap-3">
+              <h2 class="text-2xl font-bold text-slate-800">{{ item.user?.fullName || "-" }}</h2>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                :class="item.isApproved ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'">
+                {{ item.isApproved ? "ອະນຸມັດແລ້ວ" : "ລໍຖ້າອະນຸມັດ" }}
               </span>
             </div>
+            <p class="text-sm text-sky-100 font-medium mt-1">
+              {{ item.user?.role === 'technician' ? 'ນາຍຊ່າງມືອາຊີບ' : 'ນາຍຊ່າງ' }}
+            </p>
           </div>
+        </div>
+      </div>
 
+      <!-- SPACER FOR HEADER -->
+      <div class="h-20"></div>
+
+      <!-- BIO AND INFO -->
+      <div class="p-8 pt-2">
+        <!-- Quick stats grid -->
+        <div class="grid grid-cols-3 gap-4 mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+          <div class="text-center border-r border-slate-200">
+            <span class="block text-xl font-semibold uppercase tracking-wider mb-1">ປະສົບການ</span>
+            <span class="text-lg font-bold text-slate-700">{{ item.yearsOfExperience ?? 0 }} ປີ</span>
+          </div>
+          <div class="text-center border-r border-slate-200">
+            <span class="block text-xl font-semibold uppercase tracking-wider mb-1">ຄະແນນລວມ</span>
+            <div class="flex items-center justify-center gap-1">
+              <span class="text-lg font-bold text-slate-700">{{ item.totalRating ?? '0.0' }}</span>
+              <div class="flex text-amber-400">
+                <svg v-for="star in 5" :key="star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"
+                  :class="star <= Math.round(item.totalRating || 0) ? 'text-amber-400' : 'text-slate-200'">
+                  <path d="M10.868 2.784c-.304-.793-1.432-.793-1.736 0l-1.92 5.012-5.404.433c-.856.068-1.2 1.127-.54 1.682l4.116 3.484-1.217 5.314c-.193.84.718 1.5 1.437 1.052L10 14.12l4.896 2.64c.72.388 1.63-.272 1.437-1.051l-1.217-5.314 4.116-3.484c.66-.556.316-1.614-.54-1.682l-5.404-.433-1.92-5.012z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="text-center">
+            <span class="block text-xl font-semibold uppercase tracking-wider mb-1">ຄວາມໜ້າເຊື່ອຖື</span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold inline-block"
+              :class="item.user?.isVerified ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'">
+              {{ item.user?.isVerified ? 'ຢືນຢັນຕົວຕົນແລ້ວ' : 'ຍັງບໍ່ຢືນຢັນ' }}
+            </span>
+          </div>
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- LEFT COLUMN: Profile Info & Contacts -->
+          <div class="space-y-6">
+            <h3 class="text-lg font-bold text-slate-800 border-l-4 border-sky-500 pl-3">ຂໍ້ມູນການຕິດຕໍ່</h3>
+            
+            <div class="space-y-4">
+              <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
+                <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                  </svg>
+                </div>
+                <div>
+                  <span class="block text-lg text-slate-500 font-medium">ອີເມວ</span>
+                  <span class="text-sm font-semibold text-slate-700">{{ item.user?.email || "-" }}</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
+                <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.387a12.017 12.017 0 01-4.5-4.5c-.387-.44-.22-1.21.186-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                  </svg>
+                </div>
+                <div>
+                  <span class="block text-lg text-slate-500 font-medium">ເບີໂທລະສັບ</span>
+                  <span class="text-sm font-semibold text-slate-700">{{ item.user?.phone || "-" }}</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
+                <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span class="block text-lg text-slate-500 font-medium">ວັນທີລົງທະບຽນ</span>
+                  <span class="text-sm font-semibold text-slate-700">
+                    {{ item.createdAt ? new Date(item.createdAt).toLocaleDateString("lo-LA", { year: 'numeric', month: 'long', day: 'numeric' }) : "-" }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: Professional Bio / Descs -->
+          <div class="space-y-6">
+            <h3 class="text-lg font-bold text-slate-800 border-l-4 border-sky-500 pl-3">ຄຳອະທິບາຍ & ຄວາມສາມາດ</h3>
+            
+            <div class="space-y-4">
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <span class="block text-xs text-sky-600 font-bold mb-2 uppercase tracking-wide">ຄຳອະທິບາຍ (ພາສາລາວ)</span>
+                <p class="text-sm text-slate-700 leading-relaxed font-medium">
+                  {{ item.descriptionLao || "ບໍ່ມີຂໍ້ມູນຄຳອະທິບາຍພາສາລາວ" }}
+                </p>
+              </div>
+
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <span class="block text-xs text-indigo-600 font-bold mb-2 uppercase tracking-wide">Description (English)</span>
+                <p class="text-sm text-slate-600 leading-relaxed italic">
+                  {{ item.descriptionEng || "No English description provided" }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- METADATA FOOTER SECTION -->
+        <div class="mt-10 pt-6 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-400 font-medium">
+          <div>
+            <span class="block uppercase text-lg tracking-wider text-slate-600 mb-0.5">ອັບເດດລ່າສຸດ</span>
+            <span>{{ item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "-" }}</span>
+          </div>
+          <div>
+            <span class="block uppercase text-lg tracking-wider text-slate-600 mb-0.5">ອະນຸມັດໂດຍ Admin</span>
+            <span>{{ item.approvedByAdminId || "ຍັງບໍ່ໄດ້ລະບຸ" }}</span>
+          </div>
+          <div>
+            <span class="block uppercase text-lg tracking-wider text-slate-600 mb-0.5">ວັນທີອະນຸມັດ</span>
+            <span>{{ item.approvedAt ? new Date(item.approvedAt).toLocaleString() : "-" }}</span>
+          </div>
+        </div>
       </div>
-      <!-- ACTION BUTTONS -->
-      <div class="flex justify-center gap-4 mt-10 mb-10">
+    </div>
 
-        <!-- Reject -->
-        <button v-if="!item?.isApproved" @click="onReject"
-          class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
-          ປະຕິເສດ
-        </button>
-
-        <!-- Approve -->
-        <button v-if="!item?.isApproved" @click="onApprove"
-          class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
-          ອະນຸມັດ
-        </button>
+    <!-- LOADING / EMPTY STATE -->
+    <div v-else class="max-w-4xl mx-auto mt-12 bg-white rounded-3xl p-16 shadow-xl text-center border border-slate-100">
+      <div class="animate-pulse flex flex-col items-center">
+        <div class="rounded-full bg-slate-200 h-24 w-24 mb-4"></div>
+        <div class="h-4 bg-slate-200 rounded w-1/3 mb-2"></div>
+        <div class="h-3 bg-slate-200 rounded w-1/4"></div>
       </div>
     </div>
   </div>
@@ -115,16 +222,23 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { TechicianRepositoryImpl } from "../../infrastructure/repositories/techician.repository.impl";
 import { GetOneTechicianUseCase } from "../../application/use-cases/get-one-techicians.usecase";
+import { ApproveTechicianUseCase } from "../../application/use-cases/approve-techician.usecase";
+import { RejectTechicianUseCase } from "../../application/use-cases/reject-techician.usecase";
+import { useToastStore } from "../../../../stores/toast";
 
 import type { Techician } from "../../domain/entities/techician.entity";
 
 const route = useRoute();
 const router = useRouter();
+const toastStore = useToastStore();
 
 const repo = new TechicianRepositoryImpl();
 const getOne = new GetOneTechicianUseCase(repo);
+const approveUseCase = new ApproveTechicianUseCase(repo);
+const rejectUseCase = new RejectTechicianUseCase(repo);
 
 const item = ref<Techician | null>(null);
+const isActionLoading = ref(false);
 
 const goBack = () => {
   router.push("/techician");
@@ -132,40 +246,67 @@ const goBack = () => {
 
 const loadDetail = async () => {
   const id = Number(route.params.id);
-  const res: any = await getOne.execute(id);
+  try {
+    const res: any = await getOne.execute(id);
+    const data = res?.data ?? res;
 
-  const data = res?.data ?? res;
+    if (!data) return;
 
-  item.value = {
-    ...data,
+    item.value = {
+      ...data,
 
-    // ✅ normalize fields (snake_case → camelCase safe)
-    createdAt: data?.createdAt ?? data?.created_at ?? null,
-    approvedAt: data?.approvedAt ?? data?.approved_at ?? null,
-    deletedAt: data?.deletedAt ?? data?.deleted_at ?? null,
+      // ✅ normalize fields (snake_case → camelCase safe)
+      isApproved: data?.is_approved ?? data?.isApproved ?? false,
+      createdAt: data?.createdAt ?? data?.created_at ?? null,
+      updatedAt: data?.updatedAt ?? data?.updated_at ?? null,
+      approvedAt: data?.approvedAt ?? data?.approved_at ?? null,
+      deletedAt: data?.deletedAt ?? data?.deleted_at ?? null,
 
-    // ✅ fix user typo safety
-    user: data?.user
-      ? {
-        ...data.user,
-        fullName: data.user.fullName ?? data.user.fullNam ?? "-",
-      }
-      : undefined,
-  };
+      // ✅ fix user typo safety
+      user: data?.user
+        ? {
+          ...data.user,
+          isVerified: data.user.is_verified ?? data.user.isVerified ?? false,
+          fullName: data.user.fullName ?? data.user.fullNam ?? "-",
+          phone: data.user.phone ?? data.user.phone_number ?? "-",
+          profileImageUrl: data.user.profileImageUrl ?? data.user.profile_image_url ?? null,
+        }
+        : undefined,
+    };
+  } catch (e) {
+    console.error("Error loading details:", e);
+    toastStore.toast("ໂຫຼດຂໍ້ມູນບໍ່ສໍາເລັດ");
+  }
 };
 
-const onApprove = async () => {
+const handleApprove = async () => {
   if (!item.value) return;
-
-  await repo.approve(item.value.id); // 👈 call API
-  item.value.isApproved = true; // UI sync
+  try {
+    isActionLoading.value = true;
+    await approveUseCase.execute(item.value.id);
+    toastStore.toast("ອະນຸມັດສຳເລັດ");
+    await loadDetail(); // Reload updated information
+  } catch (error) {
+    console.error("Approval failed:", error);
+    toastStore.toast("ອະນຸມັດບໍ່ສຳເລັດ");
+  } finally {
+    isActionLoading.value = false;
+  }
 };
 
-const onReject = async () => {
+const handleReject = async () => {
   if (!item.value) return;
-
-  await repo.reject(item.value.id); // 👈 call API
-  item.value.isApproved = false;
+  try {
+    isActionLoading.value = true;
+    await rejectUseCase.execute(item.value.id);
+    toastStore.toast("ປະຕິເສດ/ຍົກເລີກການອະນຸມັດສຳເລັດ");
+    await loadDetail(); // Reload updated information
+  } catch (error) {
+    console.error("Rejection failed:", error);
+    toastStore.toast("ປະຕິເສດບໍ່ສຳເລັດ");
+  } finally {
+    isActionLoading.value = false;
+  }
 };
 
 onMounted(loadDetail);

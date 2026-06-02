@@ -9,4 +9,9 @@ export interface TechicianRepository {
   restore(id: any): Promise<PaginatedTechicians>;
   hardDelete(id: any): Promise<PaginatedTechicians>;
   getDeleted(params?: { page?: any; perPage?: any, search?: string }): Promise<Techician[]>;
+
+  approve(userId: number): Promise<void>;
+  reject(userId: number): Promise<void>;
+  
+  getPending(params?: { page?: number; perPage?: number; search?: string }): Promise<PaginatedTechicians>;
 }

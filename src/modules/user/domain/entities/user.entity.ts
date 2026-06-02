@@ -5,7 +5,8 @@ export interface User {
   fullName: string;
   role: string;
   phone: string;
-  isActive: string;
+  isActive: boolean;
+  isVerified: boolean;
   createdAt: string;
 }
 

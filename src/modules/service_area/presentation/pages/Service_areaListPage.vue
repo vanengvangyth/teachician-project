@@ -154,12 +154,21 @@ onMounted(loadItems);
     <!-- TABLE -->
     <div class="overflow-x-auto">
       <!-- LOADING OVERLAY -->
-      <div v-if="isLoading" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-        <div class="bg-white px-6 py-4 rounded-lg shadow text-slate-700">
-          Loading...
+      <div v-if="isLoading"
+        class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50">
+        <div
+          class="bg-white/80 p-6 rounded-2xl shadow-xl border border-slate-100 flex flex-col items-center min-w-[140px]">
+          <div class="w-10 h-10 border-4 border-slate-100 border-t-sky-500 rounded-full animate-spin mb-3"></div>
+          <span class="text-xs font-bold text-slate-700 animate-pulse">ກຳລັງໂຫລດ...</span>
         </div>
       </div>
-      <table class="w-full text-sm rounded-lg">
+      <!-- EMPTY -->
+      <div v-if="!isLoading && items.length === 0"
+        class="flex flex-col items-center justify-center py-16 text-slate-400">
+        <p class="text-lg font-semibold">ບໍ່ມີຂໍ້ມູນ</p>
+      </div>
+
+      <table v-if="items.length > 0" class="w-full text-sm rounded-lg">
         <thead class="bg-slate-100 text-slate-600">
           <tr>
             <th class="px-6 py-3 text-left font-semibold">ຊື່</th>

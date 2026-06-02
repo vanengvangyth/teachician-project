@@ -5,6 +5,8 @@ import type { Techician, PaginatedTechicians } from "../../domain/entities/techi
 import { TechicianRepositoryImpl } from "../../infrastructure/repositories/techician.repository.impl";
 import { GetAllTechiciansUseCase } from "../../application/use-cases/get-all-techicians.usecase";
 import { SoftDeleteTechicianUseCase } from "../../application/use-cases/soft-delete-techicians.usecase";
+import { ApproveTechicianUseCase } from "../../application/use-cases/approve-techician.usecase";
+import { RejectTechicianUseCase } from "../../application/use-cases/reject-techician.usecase";
 import techicianForm from "./techicianForm.vue";
 import Paginator from "../../../../shared/components/paginator.vue";
 import techicianDeletePage from "./techicianDeletePage.vue";
@@ -16,9 +18,17 @@ const showForm = ref(false);
 const perPage = 10;
 const showDeleted = ref(false);
 
+// Delete modal
 const showDeleteModal = ref(false);
-const selectedId = ref<number | null>(null);
+const selectedDeleteId = ref<number | null>(null);
 
+// Approve/Reject modal
+const showConfirmModal = ref(false);
+const confirmAction = ref<"approve" | "reject">("approve");
+const selectedActionId = ref<number | null>(null);
+const selectedName = ref("");
+
+const skipNextLoad = ref(false);
 const isLoading = ref(false);
 const toastStore = useToastStore();
 
@@ -31,6 +41,8 @@ const numberOfPage = computed(() => Math.ceil(totalItems.value / perPage));
 const repo = new TechicianRepositoryImpl();
 const getUseCase = new GetAllTechiciansUseCase(repo);
 const deleteUseCase = new SoftDeleteTechicianUseCase(repo);
+const approveUseCase = new ApproveTechicianUseCase(repo);
+const rejectUseCase = new RejectTechicianUseCase(repo);
 
 const currentPage = computed(() => {
   const pageQuery = route.query.page;
@@ -42,6 +54,11 @@ const currentPage = computed(() => {
 });
 
 async function loadItems() {
+  if (skipNextLoad.value) {
+    skipNextLoad.value = false;
+    return;
+  }
+
   try {
     isLoading.value = true;
 
@@ -57,9 +74,19 @@ async function loadItems() {
     const result: PaginatedTechicians = await getUseCase.execute(params);
     items.value = result.data.map((i: any) => ({
       ...i,
+      isApproved: i.is_approved ?? i.isApproved ?? false,
       createdAt: i.created_at ?? i.createdAt ?? null,
       updatedAt: i.updated_at ?? i.updatedAt ?? null,
+      user: i.user
+        ? {
+            ...i.user,
+            isVerified: i.user.is_verified ?? i.user.isVerified ?? false,
+            fullName: i.user.fullName ?? i.user.fullNam ?? "-",
+          }
+        : undefined,
     }));
+
+    console.log("Loaded techicians:", items.value);
 
     totalItems.value = result.total;
   } catch (error) {
@@ -84,36 +111,86 @@ watch(
   { immediate: true }
 );
 
-/* Detail → FULL PAGE */
 function openEdit(id: number) {
   router.push(`/techician/${id}/detail`);
 }
 
+// ─── DELETE ───────────────────────────────────────────────
 function askDelete(id: number) {
-  selectedId.value = id;
+  selectedDeleteId.value = id;
   showDeleteModal.value = true;
 }
 
 async function confirmDelete() {
-  if (!selectedId.value) return;
+  if (!selectedDeleteId.value) return;
+  const removedId = selectedDeleteId.value;
 
   try {
     isLoading.value = true;
-    await deleteUseCase.execute(selectedId.value);
-
-    items.value = items.value.filter(
-      (i) => i.id !== selectedId.value
-    );
-
+    await deleteUseCase.execute(removedId);
+    items.value = items.value.filter((i) => i.id !== removedId);
+    totalItems.value = Math.max(0, totalItems.value - 1);
+    skipNextLoad.value = true;
     toastStore.toast("ລົບສໍາເລັດ");
-    totalItems.value--;
   } catch (error) {
-    console.error("🔥 Delete failed:", error);
+    console.error("Delete failed:", error);
     toastStore.toast("ລົບບໍ່ສໍາເລັດ");
   } finally {
     isLoading.value = false;
     showDeleteModal.value = false;
-    selectedId.value = null;
+    selectedDeleteId.value = null;
+  }
+}
+
+// ─── APPROVE / REJECT ─────────────────────────────────────
+function  askApprove(item: Techician) {
+  selectedActionId.value = item.id;
+  selectedName.value = item.user?.fullName || `#${item.id}`;
+  confirmAction.value = "approve";
+  showConfirmModal.value = true;
+}
+
+function askReject(item: Techician) {
+  selectedActionId.value = item.id;
+  selectedName.value = item.user?.fullName || `#${item.id}`;
+  confirmAction.value = "reject";
+  showConfirmModal.value = true;
+}
+
+async function confirmActionHandler() {
+  if (!selectedActionId.value) return;
+  const targetId = selectedActionId.value;
+
+  try {
+    isLoading.value = true;
+
+    if (confirmAction.value === "approve") {
+      await approveUseCase.execute(targetId);
+      // ✅ อัปเดต isApproved ใน list ทันที ไม่ต้อง reload
+      items.value = items.value.map((i) =>
+        i.id === targetId ? { ...i, isApproved: true } : i
+      );
+      toastStore.toast("ອະນຸມັດສຳເລັດ");
+    } else {
+      await rejectUseCase.execute(targetId);
+      // ✅ อัปเดต isApproved เป็น false ทันที
+      items.value = items.value.map((i) =>
+        i.id === targetId ? { ...i, isApproved: false } : i
+      );
+      toastStore.toast("ປະຕິເສດສຳເລັດ");
+    }
+
+    skipNextLoad.value = true;
+  } catch (error) {
+    console.error("Action failed:", error);
+    toastStore.toast(
+      confirmAction.value === "approve" ? "ອະນຸມັດບໍ່ສຳເລັດ" : "ປະຕິເສດບໍ່ສຳເລັດ"
+    );
+  } finally {
+    isLoading.value = false;
+    showConfirmModal.value = false;
+    selectedActionId.value = null;
+    selectedName.value = "";
   }
 }
 
@@ -126,7 +203,7 @@ const closeFunction = () => {
 const closeDeletedFunction = () => {
   showDeleted.value = false;
   loadItems();
-}
+};
 
 onMounted(loadItems);
 </script>
@@ -136,9 +213,9 @@ onMounted(loadItems);
     <!-- HEADER -->
     <div class="flex items-center justify-between p-6 border-b">
       <h1 class="text-2xl font-bold text-slate-800">ຈັດການນາຍຊ່າງ</h1>
-      <div class="flex px-10">
+      <div class="flex px-10 gap-3">
         <button
-          class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition mx-10"
+          class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
           @click="showDeleted = !showDeleted">
           ກູ້ຄືນຊ່າງທີ່ຖືກລຶບ
         </button>
@@ -155,21 +232,31 @@ onMounted(loadItems);
 
     <!-- SEARCH -->
     <div class="flex justify-center p-6">
-      <input v-model="search" placeholder="Search..." class="w-full max-w-sm rounded-lg border border-blue-400 bg-white px-4 py-2 text-sm
+      <input v-model="search" placeholder="Search..."
+        class="w-full max-w-sm rounded-lg border border-blue-400 bg-white px-4 py-2 text-sm
         focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none" />
     </div>
 
     <!-- TABLE -->
     <div class="overflow-x-auto">
-      <!-- LOADING OVERLAY -->
-      <div v-if="isLoading" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-        <div class="bg-white px-6 py-4 rounded-lg shadow text-slate-700">
-          Loading...
+      <!-- LOADING -->
+      <div v-if="isLoading" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white/80 p-6 rounded-2xl shadow-xl border border-slate-100 flex flex-col items-center min-w-[140px]">
+          <div class="w-10 h-10 border-4 border-slate-100 border-t-sky-500 rounded-full animate-spin mb-3"></div>
+          <span class="text-xs font-bold text-slate-700 animate-pulse">ກຳລັງໂຫລດ...</span>
         </div>
       </div>
-      <table class="w-full text-sm rounded-lg">
+
+      <!-- EMPTY -->
+      <div v-if="!isLoading && items.length === 0"
+        class="flex flex-col items-center justify-center py-16 text-slate-400">
+        <p class="text-lg font-semibold">ບໍ່ມີຂໍ້ມູນ</p>
+      </div>
+
+      <table v-if="items.length > 0" class="w-full text-sm rounded-lg">
         <thead class="bg-slate-100 text-slate-600">
           <tr>
+            <th class="px-6 py-3 text-left font-semibold">#</th>
             <th class="px-6 py-3 text-left font-semibold">ຊື່</th>
             <th class="px-6 py-3 text-left font-semibold">ຄຳອະທິບາຍ</th>
             <th class="px-6 py-3 text-left font-semibold">ປະສົບການ</th>
@@ -181,92 +268,114 @@ onMounted(loadItems);
         </thead>
 
         <tbody class="divide-y">
-          <tr v-for="item in items" :key="item.id" class="hover:bg-slate-50 transition">
-            <td class="px-6 py-4">
-              <div class="font-semibold text-slate-800">
-                {{ item.user?.fullName || item.user?.fullName || ('#' + item.id) }}
-              </div>
+          <tr v-for="(item, index) in items" :key="item.id" class="hover:bg-slate-50 transition">
+            <td class="px-6 py-4 text-slate-500">
+              {{ (currentPage - 1) * perPage + index + 1 }}
             </td>
 
             <td class="px-6 py-4">
               <div class="font-semibold text-slate-800">
-                {{ item.descriptionLao || item.descriptionLao || ('#' + item.id) }}
+                {{ item.user?.fullName || ('#' + item.id) }}
+              </div>
+              <div class="text-xs text-slate-400">{{ item.user?.email || '-' }}</div>
+            </td>
+
+            <td class="px-6 py-4">
+              <div class="text-slate-800 max-w-[200px] truncate">
+                {{ item.descriptionLao || item.descriptionEng || '-' }}
               </div>
             </td>
 
-            <!-- yearsOfExperience -->
             <td class="px-6 py-4 text-sm text-slate-800">
-              {{ item.yearsOfExperience }}
+              {{ item.yearsOfExperience }} ປີ
             </td>
 
-            <!-- Created At -->
             <td class="px-6 py-4 text-sm text-slate-500">
               {{ new Date(item.createdAt).toLocaleDateString() }}
             </td>
 
-            <!-- Updated At -->
             <td class="px-6 py-4 text-sm text-slate-500">
               {{ new Date(item.updatedAt).toLocaleDateString() }}
             </td>
 
-            <!-- isapproved -->
+            <!-- ✅ STATUS COLUMN — แสดงสถานะ + ปุ่ม approve/reject ถ้า pending -->
+            <td class="px-6 py-4 text-sm">
+              <div class="flex flex-col gap-1">
+                <span class="px-3 py-1 rounded-full font-semibold text-xs w-fit"
+                  :class="item.isApproved === true ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                  {{ item.isApproved === true ? 'ອະນຸມັດແລ້ວ' : 'ລໍຖ້າອະນຸມັດ' }}
+                </span>
 
-            <td class="px-6 py-4 text-sm text-slate-500">
-              <span class="px-3 py-1 rounded-full font-semibold text-sm"
-                :class="item.isApproved ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
-                {{ item.isApproved ? 'ອະນຸມັດແລ້ວ' : 'ຍັງບໍ່ໄດ້ອະນຸມັດ' }}
-              </span>
+                <!-- ✅ ถ้า pending แสดงปุ่ม approve/reject ใต้ badge -->
+                
+              </div>
             </td>
 
-            <!-- Actions -->
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-2">
-                <!--Detail -->
+                <div v-if="!item.isApproved" class="flex gap-1 mt-1">
+                  <button
+                    class="rounded px-2 py-0.5 bg-green-50 text-green-700 hover:bg-green-200 transition font-semibold text-xs"
+                    @click="askApprove(item)">
+                    ✅ ອະນຸມັດ
+                  </button>
+                  <button
+                    class="rounded px-2 py-0.5 bg-red-50 text-red-600 hover:bg-red-200 transition font-semibold text-xs"
+                    @click="askReject(item)">
+                    ❌ ປະຕິເສດ
+                  </button>
+                </div>
                 <button class="rounded-md px-3 py-1 text-amber-700 hover:bg-amber-200 transition"
                   @click="openEdit(item.id)">
                   👁️
                 </button>
-                 <!-- EDIT -->
-                <button class="rounded-md  px-3 py-1 text-amber-700 hover:bg-amber-200 transition" @click="
-                    () => {
-                      router.push({
-                        path: route.path,
-                        query: { ...route.query, id: item.id },
-                      });
-                      showForm = true;
-                    }
-                  ">
-                    ✏️
-                  </button>
-
-                  <button @click="askDelete(item.id)"
-                    class="rounded-md px-3 py-1 text-red-600 hover:bg-red-200 transition">
-                    🗑️
-                  </button>
+                <button class="rounded-md px-3 py-1 text-amber-700 hover:bg-amber-200 transition"
+                  @click="() => { router.push({ path: route.path, query: { ...route.query, id: item.id } }); showForm = true; }">
+                  ✏️
+                </button>
+                <button class="rounded-md px-3 py-1 text-red-600 hover:bg-red-200 transition"
+                  @click="askDelete(item.id)">
+                  🗑️
+                </button>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <!-- DELETE MODAL (KEEP OLD UI) -->
+      <!-- DELETE MODAL -->
       <div v-if="showDeleteModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
         <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-          <h2 class="text-lg font-semibold text-slate-800 mb-2">
-            ຢືນຢັນການລຶບ
-          </h2>
-
-          <p class="text-sm text-slate-600 mb-6">
-            ທ່ານຕ້ອງການລຶບລາຍການນີ້ແທ້ບໍ?
-          </p>
-
+          <h2 class="text-lg font-semibold text-slate-800 mb-2">ຢືນຢັນການລຶບ</h2>
+          <p class="text-sm text-slate-600 mb-6">ທ່ານຕ້ອງການລຶບລາຍການນີ້ແທ້ບໍ?</p>
           <div class="flex justify-end gap-3">
-            <button @click="showDeleteModal = false" class="px-4 py-2 rounded-md bg-slate-200 hover:bg-slate-300">
-              ຍົກເລີກ
-            </button>
+            <button @click="showDeleteModal = false"
+              class="px-4 py-2 rounded-md bg-slate-200 hover:bg-slate-300">ຍົກເລີກ</button>
+            <button @click="confirmDelete"
+              class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">ລຶບ</button>
+          </div>
+        </div>
+      </div>
 
-            <button @click="confirmDelete" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">
-              ລຶບ
+      <!-- APPROVE / REJECT MODAL -->
+      <div v-if="showConfirmModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
+          <h2 class="text-lg font-semibold text-slate-800 mb-2">
+            {{ confirmAction === 'approve' ? 'ຢືນຢັນການອະນຸມັດ' : 'ຢືນຢັນການປະຕິເສດ' }}
+          </h2>
+          <p class="text-sm text-slate-600 mb-6">
+            {{ confirmAction === 'approve'
+              ? `ທ່ານຕ້ອງການອະນຸມັດ "${selectedName}" ແທ້ບໍ?`
+              : `ທ່ານຕ້ອງການປະຕິເສດ "${selectedName}" ແທ້ບໍ?`
+            }}
+          </p>
+          <div class="flex justify-end gap-3">
+            <button @click="showConfirmModal = false"
+              class="px-4 py-2 rounded-md bg-slate-200 hover:bg-slate-300 transition">ຍົກເລີກ</button>
+            <button @click="confirmActionHandler"
+              :class="confirmAction === 'approve' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'"
+              class="px-4 py-2 rounded-md text-white transition">
+              {{ confirmAction === 'approve' ? 'ອະນຸມັດ' : 'ປະຕິເສດ' }}
             </button>
           </div>
         </div>
