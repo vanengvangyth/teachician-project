@@ -11,8 +11,9 @@ export class GetUsersUseCase {
   async execute(params: GetAllUsersDto = {}) {
     const page = params.page ?? 1;
     const perPage = params.perPage ?? 10;
-    const search = params.search ?? ''
+    const search = params.search ?? '';
+    const role = params.role;
 
-    return this.repo.getAll(page, perPage, search);
+    return this.repo.getAll(page, perPage, search, role);
   }
 }

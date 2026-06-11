@@ -17,8 +17,8 @@ export class UserRepositoryImpl implements UserRepository {
   hardDelete(id: any): Promise<any> {
     throw new Error('Method not implemented.');
   }
-  async getAll(page: any, perPage: any, search: string): Promise<any> {
-    return userApi.getAll(page, perPage, search);
+  async getAll(page: any, perPage: any, search: string, role?: string): Promise<any> {
+    return userApi.getAll(page, perPage, search, role);
   }
 
 

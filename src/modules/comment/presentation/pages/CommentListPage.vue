@@ -137,14 +137,12 @@ onMounted(loadItems);
     <div class="flex justify-center p-6">
       <input v-model="search" placeholder="Search..." class="w-full max-w-sm rounded-lg border border-blue-400 bg-white px-4 py-2 text-sm
            focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none" </div>
-
       <!-- TABLE -->
-      <div class="overflow-x-auto">
-        <!-- LOADING OVERLAY -->
-        <div v-if="isLoading"
-          class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div class="overflow-x-auto relative min-h-[200px]">
+        <!-- LOADING INLINE -->
+        <div v-if="isLoading" class="absolute inset-0 bg-white/60 flex items-center justify-center z-10">
           <div
-            class="bg-white/80 p-6 rounded-2xl shadow-xl border border-slate-100 flex flex-col items-center min-w-[140px]">
+            class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100 flex flex-col items-center min-w-[140px]">
             <div class="w-10 h-10 border-4 border-slate-100 border-t-sky-500 rounded-full animate-spin mb-3"></div>
             <span class="text-xs font-bold text-slate-700 animate-pulse">ກຳລັງໂຫລດ...</span>
           </div>

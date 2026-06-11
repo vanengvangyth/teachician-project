@@ -166,9 +166,25 @@ const onSubmit = handleSubmit(async (values) => {
     const res = await createUseCase.execute(values);
     toatStore.toast("ບັນທຶກສໍາເລັດແລ້ວ");
     if (res?.data?.id) emits("closeForm", true);
-  } catch (e) {
+  } catch (e: any) {
     console.error("Create error:", e);
-    toatStore.toast("ບັນທຶກບໍ່ສໍາເລັດ");
+    
+    let errorMessage = "ບັນທຶກບໍ່ສໍາເລັດ";
+    if (e.response?.data?.message) {
+      const msg = e.response.data.message;
+      if (Array.isArray(msg)) {
+        errorMessage = msg.join(", ");
+      } else if (typeof msg === "string") {
+        if (msg.includes("already exists")) {
+          errorMessage = "ບໍລິການຊ່າງນີ້ມີຢູ່ແລ້ວໃນລະບົບ (Technician service already exists)";
+        } else {
+          errorMessage = msg;
+        }
+      }
+    } else if (e.message) {
+      errorMessage = e.message;
+    }
+    toatStore.toast(errorMessage);
   }
 });
 
@@ -179,9 +195,25 @@ const onUpdate = handleSubmit(async (values) => {
     
     toatStore.toast("ບັນທຶກສໍາເລັດແລ້ວ");
     if (res) emits("closeForm", true);
-  } catch (e) {
+  } catch (e: any) {
     console.error("Update error:", e);
-    toatStore.toast("ບັນທຶກບໍ່ສໍາເລັດ");
+    
+    let errorMessage = "ບັນທຶກບໍ່ສໍາເລັດ";
+    if (e.response?.data?.message) {
+      const msg = e.response.data.message;
+      if (Array.isArray(msg)) {
+        errorMessage = msg.join(", ");
+      } else if (typeof msg === "string") {
+        if (msg.includes("already exists")) {
+          errorMessage = "ບໍລິການຊ່າງນີ້ມີຢູ່ແລ້ວໃນລະບົບ (Technician service already exists)";
+        } else {
+          errorMessage = msg;
+        }
+      }
+    } else if (e.message) {
+      errorMessage = e.message;
+    }
+    toatStore.toast(errorMessage);
   }
 });
 

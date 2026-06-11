@@ -73,6 +73,7 @@ import { UpdateTechicianUseCase } from "../../application/use-cases/update-techi
 import { GetOneTechicianUseCase } from "../../application/use-cases/get-one-techicians.usecase";
 import { GetUsersUseCase } from "../../../user/application/use-cases/get-users.usecase";
 import { useToastStore } from "../../../../stores/toast";
+import { UserRepositoryImpl } from "../../../user/infrastructure/repositories/user.repository.impl";
 
 const route = useRoute();
 const emits = defineEmits(["closeForm"]);
@@ -80,7 +81,7 @@ const emits = defineEmits(["closeForm"]);
 const toatStore = useToastStore();
 
 const technicians = ref<any[]>([]);
-const userRepo = new TechicianRepositoryImpl();
+const userRepo = new UserRepositoryImpl();
 const getUsersUseCase = new GetUsersUseCase(userRepo); 
 
 const repo = new TechicianRepositoryImpl();
@@ -134,14 +135,14 @@ const [yearsValue] = defineField("yearsOfExperience");
 const loadUsers = async () => {
   try {
     const res = await getUsersUseCase.execute();
-    technicians.value = res.data.map((t: any) => ({
-      id: t.id,
-      user: {
-        fullName: t.user?.fullName ?? "",
-      },
-    }));
+    technicians.value = res.data
+      .filter((u: any) => !u.techician) 
+      .map((u: any) => ({
+        id: u.id,
+        user: { fullName: u.fullName ?? "" },
+      }));
   } catch (e) {
-    console.error("Error loading technicians:", e);
+    console.error("Error loading users:", e);
   }
 };
 
@@ -161,6 +162,7 @@ const onSubmit = handleSubmit(async (values) => {
     console.error("Create error:", e);
     toatStore.toast("ບັນທຶກບໍ່ສໍາເລັດ");
   }
+  emits("closeForm", false);
 });
 
 /* UPDATE */

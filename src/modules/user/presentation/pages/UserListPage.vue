@@ -32,6 +32,25 @@ const currentPage = computed(() => {
   return 1;
 });
 
+const selectedRole = computed(() => {
+  const roleQuery = route.query.role;
+  return typeof roleQuery === "string" ? roleQuery : "All";
+});
+
+function onRoleChange(event: Event) {
+  const val = (event.target as HTMLSelectElement).value;
+  router.push({ query: { ...route.query, page: "1", role: val } });
+}
+
+const roleClass = (role: string) => {
+  const map: any = {
+    admin: "bg-purple-100 text-purple-700 border border-purple-200",
+    user: "bg-blue-100 text-blue-700 border border-blue-200",
+    technician: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+  };
+  return map[role.toLowerCase()] ?? "bg-slate-100 text-slate-700 border border-slate-200";
+};
+
 async function loadUsers() {
   const params: any = {
     page: currentPage.value,
@@ -40,11 +59,22 @@ async function loadUsers() {
   if (search.value && search.value.trim() !== "") {
     params.search = search.value.trim();
   }
+  if (selectedRole.value !== "All") {
+    params.role = selectedRole.value.toLowerCase();
+  }
 
- const result: PaginatedUsers = await getUsersUseCase.execute(params);
+  const result: PaginatedUsers = await getUsersUseCase.execute(params);
+  
+  let data = result.data || [];
+  if (selectedRole.value !== "All") {
+    const hasUnsupportedRole = data.some(u => u.role.toLowerCase() !== selectedRole.value.toLowerCase());
+    if (hasUnsupportedRole) {
+      data = data.filter(u => u.role.toLowerCase() === selectedRole.value.toLowerCase());
+    }
+  }
 
-items.value = result.data;
-totalUsers.value = result.total;
+  items.value = data;
+  totalUsers.value = result.total;
 }
 
 watch(search, () => {
@@ -52,12 +82,19 @@ watch(search, () => {
   loadUsers();
 });
 
+function openDetail(user: User) {
+  router.push({
+    path: `/user/${user.id}/detail`,
+    state: { user: JSON.parse(JSON.stringify(user)) },
+  });
+}
+
 function goToPage(page: number) {
   router.push({ query: { ...route.query, page: page.toString(), search: search.value } });
 }
 
 watch(
-  () => route.query.page,
+  () => [route.query.page, route.query.role],
   () => loadUsers(),
   { immediate: true }
 );
@@ -108,11 +145,14 @@ onMounted(loadUsers);
         class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none"
       />
       <select
-        class="w-full sm:w-40 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none"
+        :value="selectedRole"
+        @change="onRoleChange"
+        class="w-full sm:w-40 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none font-semibold text-slate-700"
       >
-        <option>All Roles</option>
-        <option>Admin</option>
-        <option>Staff</option>
+        <option value="All">All</option>
+        <option value="Admin">Admin</option>
+        <option value="User">User</option>
+        <option value="Technician">Technician</option>
       </select>
     </div>
 
@@ -131,18 +171,28 @@ onMounted(loadUsers);
             <td class="px-6 py-4">
               <div class="flex items-center gap-4">
                 <div
-                  class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-500 text-white font-bold"
+                  class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-500 text-white font-bold shadow-sm"
                 >
-                  {{ user.fullName.charAt(0) || "U" }}
+                  {{ user.fullName ? user.fullName.charAt(0).toUpperCase() : "U" }}
                 </div>
                 <div>
-                  <div class="font-semibold text-slate-800">{{ user.fullName }}</div>
+                  <div class="font-semibold text-slate-800 flex items-center gap-2">
+                    {{ user.fullName }}
+                    <span class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider" :class="roleClass(user.role)">
+                      {{ user.role }}
+                    </span>
+                  </div>
                   <div class="text-xs text-slate-500">{{ user.email }}</div>
                 </div>
               </div>
             </td>
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-2">
+                <!--Detail -->
+                <button class="rounded-md px-3 py-1 text-amber-700 hover:bg-amber-200 transition"
+                  @click="openDetail(user)">
+                  👁️
+                </button>
                 <button
                   class="rounded-md bg-amber-100 px-3 py-1 text-amber-700 hover:bg-amber-200 transition"
                   @click="

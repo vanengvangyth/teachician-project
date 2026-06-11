@@ -2,8 +2,12 @@ import axios from '../../../../service/axios';
 import type { PaginatedUsers, SingleUserResponse } from '../../domain/entities/user.entity';
 
 export const userApi = {
-  async getAll(page: number = 1, perPage: number = 10, search: string = ''): Promise<any> {
-    const res = await axios.get('/users', { params: { page, perPage, search } });
+  async getAll(page: number = 1, perPage: number = 10, search: string = '', role?: string): Promise<any> {
+    const params: any = { page, perPage, search };
+    if (role && role !== 'All') {
+      params.role = role.toLowerCase();
+    }
+    const res = await axios.get('/users', { params });
     return res.data;
   },
 
@@ -18,8 +22,8 @@ export const userApi = {
   },
 
   async getone(id: any): Promise<any> {
-    const res = await axios.get(`users/${id}`)
-    return res;
+    const res = await axios.get(`users/${id}`);
+    return res.data;
   },
 
   softDelete(id: any) {

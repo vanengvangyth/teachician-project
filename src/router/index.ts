@@ -17,7 +17,20 @@ const router = createRouter({
     {
       path: "/user",
       name: "user",
-      component: () => import("../modules/user/presentation/pages/UserListPage.vue")
+      component: () => import("../modules/user/presentation/pages/UserListPage.vue"),
+    },
+
+    {
+      path: "/users",
+      name: "users",
+      // 📌 ໃຫ້ໃຊ້ Component ໂຕນີ້ ເພາະເຮົາຂຽນ Filter ໃຫ້ສະແດງສະເພາະລູກຄ້າ (Role: User) ໄວ້ແລ້ວ
+      component: () => import("../modules/user/presentation/pages/user.vue"),
+    },
+    {
+      path: "/user/:id/detail",
+      name: "user.detail",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/user/presentation/pages/userDetail.vue")
     },
 
     // Category
@@ -125,19 +138,45 @@ const router = createRouter({
       meta: { requiresAuth: true },
       component: () => import("../modules/technician_service/presentation/pages/technician_serviceDetail.vue")
     },
-    
+
     //systemlog
     {
       path: "/systemlog",
       name: "systemlog",
       component: () => import("../modules/systemlog/presentation/pages/SystemlogListPage.vue")
     },
-    
-    // {
-    //   path: "/product",
-    //   name: "product",
-    //   component: () => import("../modules/product/presentation/pages/ProductListPage.vue")
-    // }
+
+    // Reports
+    {
+      path: "/manage/users",
+      name: "report.users",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/report/presentation/pages/ReportUsers.vue")
+    },
+    {
+      path: "/manage/job",
+      name: "report.jobs",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/report/presentation/pages/ReportJobs.vue")
+    },
+    {
+      path: "/manage/category",
+      name: "report.categories",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/report/presentation/pages/ReportCategories.vue")
+    },
+    {
+      path: "/manage/service-area",
+      name: "report.serviceArea",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/report/presentation/pages/ReportServiceAreas.vue")
+    },
+    {
+      path: "/manage/technician-status",
+      name: "report.technicianStatus",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/report/presentation/pages/ReportTechnicianVerification.vue")
+    },
   ],
 });
 

@@ -6,8 +6,9 @@
       <!-- Name -->
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">JobId</label>
-        <select v-model="jobIdValue" class="w-full rounded-lg border px-3 py-2 text-sm">
-          <option :value="null">-- ເລືອກ Job --</option>
+        <select :value="jobIdValue" @change="(e) => setFieldValue('jobId', (e.target as HTMLSelectElement).value)"
+          class="w-full rounded-lg border px-3 py-2 text-sm">
+          <option value="">-- ເລືອກ Job --</option>
           <option v-for="j in jobs" :key="j.id" :value="j.id">
             {{ j.title || ('#' + j.id) }}
           </option>
@@ -88,8 +89,7 @@ const loadJobs = async () => {
 }; onMounted(loadJobs);
 
 const schema = yup.object({
-  jobId: yup.mixed()
-    .test("required", "ກະລຸນາເລືອກ Job", (val) => !!val),
+  jobId: yup.mixed().test("required", "ກະລຸນາເລືອກ Job", (val) => !!val),
   content: yup.string().required("ກະລຸນາປ້ອນຄອມເມັ້ນ"),
   parentId: yup.number().nullable().notRequired(),
 });
@@ -112,19 +112,16 @@ const [parentIdValue] = defineField("parentId");
 const onSubmit = handleSubmit(async (values: any) => {
   try {
     const payload: any = {
-      jobId: values.jobId,
+      jobId: values.jobId, 
       content: values.content,
     };
 
-    // ✅ important fix
-    if (values.parentId !== null && values.parentId !== undefined) {
+    if (values.parentId !== null && values.parentId !== undefined && values.parentId !== "") {
       payload.parentId = Number(values.parentId);
     }
 
     const res: any = await createUseCase.execute(payload);
-
     toastStore.toast("ສ້າງຄອມເມັ້ນສຳເລັດ");
-
     if (res?.id) {
       emits("closeForm", false);
     }

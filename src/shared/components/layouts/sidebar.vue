@@ -17,73 +17,81 @@
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item" to="/category">
+      <RouterLink class="sidebar-item" to="/users">
         <p>
-          <List class="w-4 h-4 mx-2" />
-          <span class="label">Category</span>
-        </p>
-      </RouterLink>
-
-      <RouterLink class="sidebar-item" to="/comment">
-        <p>
-          <MessagesSquare class="w-4 h-4 mx-2" />
-          <span class="label">Comment</span>
+          <Users class="w-4 h-4 mx-2" />
+          <span class="label">ຈັດການຂໍ້ມູນລູກຄ້າ</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/job">
         <p>
           <Briefcase class="w-4 h-4 mx-2" />
-          <span class="label">Job</span>
+          <span class="label">ຈັດການວຽກງານ</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/techician">
         <p>
           <HardHat class="w-4 h-4 mx-2" />
-          <span class="label">Technician</span>
+          <span class="label">ຈັດການຂໍ້ມູນຊ່າງ</span>
+        </p>
+      </RouterLink>
+
+      <RouterLink class="sidebar-item" to="/category">
+        <p>
+          <List class="w-4 h-4 mx-2" />
+          <span class="label">ຈັດການປະເພດວຽກ</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/document">
         <p>
           <FileText class="w-4 h-4 mx-2" />
-          <span class="label">Document</span>
+          <span class="label">ເອກະສານ</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/attachment">
         <p>
           <Paperclip class="w-4 h-4 mx-2" />
-          <span class="label">Attachment</span>
+          <span class="label">ໄຟລ໌ແນບປະກອບ</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/notification">
         <p>
           <Bell class="w-4 h-4 mx-2" />
-          <span class="label">Notification</span>
+          <span class="label">ການແຈ້ງເຕືອນ</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/service_area">
         <p>
           <MapPin class="w-4 h-4 mx-2" />
-          <span class="label">Service_area</span>
+          <span class="label">ພື້ນທີ່ໃຫ້ບໍລິການ</span>
         </p>
       </RouterLink>
 
       <RouterLink class="sidebar-item" to="/technician_service">
         <p>
           <Wrench class="w-4 h-4 mx-2" />
-          <span class="label">Technician_service</span>
+          <span class="label">ການບໍລິການຂອງຊ່າງ</span>
         </p>
       </RouterLink>
+
+      <RouterLink class="sidebar-item" to="/comment">
+        <p>
+          <MessagesSquare class="w-4 h-4 mx-2" />
+          <span class="label">ຄວາມຄິດເຫັນ</span>
+        </p>
+      </RouterLink>
+
 
       <RouterLink class="sidebar-item" to="/systemlog">
         <p>
           <ScrollText class="w-4 h-4 mx-2" />
-          <span class="label">Systemlog</span>
+          <span class="label">ບັນທຶກປະຫວັດລະບົບ</span>
         </p>
       </RouterLink>
 
@@ -91,25 +99,25 @@
       <div class="sidebar-item has-child" :class="{ expanded: expanded && isOpen }">
         <p @click="isOpen && (expanded = !expanded)">
           <Folder class="w-4 h-4 mx-2" />
-          <span class="label">ການຈັດການ</span>
+          <span class="label">ລາຍງານ</span>
           <ChevronRight class="chevron label" />
         </p>
 
         <ul v-show="isOpen && expanded">
           <li>
-            <RouterLink to="/manage/benefit">Benefit</RouterLink>
+            <RouterLink to="/manage/users">ຂໍ້ມູນສະມາຊິກ</RouterLink>
           </li>
           <li>
-            <RouterLink to="/manage/skill-library">Skill Library</RouterLink>
+            <RouterLink to="/manage/job">ຂໍ້ມູນວຽກ</RouterLink>
           </li>
           <li>
-            <RouterLink to="/manage/skill-level">Skill Level</RouterLink>
+            <RouterLink to="/manage/category">ຂ້ໍມູນປະເພດວຽກ</RouterLink>
           </li>
           <li>
-            <RouterLink to="/manage/language">Language</RouterLink>
+            <RouterLink to="/manage/service-area">ສະຖິຕິການປະກາດວຽກ</RouterLink>
           </li>
           <li>
-            <RouterLink to="/manage/language-level">Language Level</RouterLink>
+            <RouterLink to="/manage/technician-status">ສະຖານະການຢືນຢັນຕົວຕົນ</RouterLink>
           </li>
         </ul>
       </div>
@@ -124,7 +132,7 @@
 
     <a class="logout" @click="log_Out">
       <LogOut class="w-4 h-4 mx-2" />
-      <span class="label">Logout</span>
+      <span class="label">ອອກຈາກລະບົບ</span>
     </a>
   </div>
 </template>
