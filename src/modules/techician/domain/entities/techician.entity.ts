@@ -6,7 +6,7 @@ export interface TechicianUser {
   profileImageUrl?: string | null;
   role: string;
   permissions: string[];
-  isVerified: boolean;    // ← approve/reject อยู่ตรงนี้
+  isVerified: boolean;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -16,7 +16,7 @@ export interface TechicianUser {
 export interface Techician {
   id: number;
   userId: number;
-  user?: TechicianUser;   // ← ข้อมูล user จริงอยู่ใน nested นี้
+  user?: TechicianUser;
   descriptionLao: string;
   descriptionEng: string;
   yearsOfExperience: number;

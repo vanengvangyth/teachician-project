@@ -346,16 +346,17 @@ const editItem = async (id: number) => {
   const res: any = await getOneUseCase.execute(id);
 
   console.log("EDIT DATA:", res);
+  const data = res.data?.data || res.data;
 
-  setFieldValue("userId", res.data.userId);
-  setFieldValue("title", res.data.title);
-  setFieldValue("description", res.data.description);
-  setFieldValue("categoryId", res.data.categoryId);
-  setFieldValue("location", res.data.location);
-  setFieldValue("latitude", res.data.latitude);
-  setFieldValue("longitude", res.data.longitude);
-  setFieldValue("estimatedDuration", res.data.estimatedDuration);
-  setFieldValue("status", res.data.status);
+  setFieldValue("userId", data.userId);
+  setFieldValue("title", data.title);
+  setFieldValue("description", data.description);
+  setFieldValue("categoryId", data.categoryId);
+  setFieldValue("location", data.location);
+  setFieldValue("latitude", data.latitude);
+  setFieldValue("longitude", data.longitude);
+  setFieldValue("estimatedDuration", data.estimatedDuration);
+  setFieldValue("status", data.status);
 
   // Sync map center and marker position after loading edit item
   setTimeout(() => {

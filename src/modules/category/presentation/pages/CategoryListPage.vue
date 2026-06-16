@@ -206,6 +206,13 @@ onMounted(loadItems);
               <!-- Actions -->
               <td class="px-6 py-4 text-right">
                 <div class="flex justify-end gap-2">
+                  <button
+                    class="rounded-md px-3 py-1 text-sky-700 hover:bg-sky-100 transition"
+                    @click="router.push({ name: 'category.detail', params: { id: item.id } })"
+                  >
+                    👁️
+                  </button>
+
                   <button class="rounded-md  px-3 py-1 text-amber-700 hover:bg-amber-200 transition" @click="
                     () => {
                       router.push({

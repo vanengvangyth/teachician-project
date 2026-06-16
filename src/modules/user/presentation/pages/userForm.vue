@@ -3,6 +3,19 @@
     <form class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mx-4 overflow-auto">
       <h3 class="text-center text-xl font-bold mb-6">User Form</h3>
 
+      <!-- Profile Image Upload -->
+      <div class="mb-6 flex flex-col items-center">
+        <div class="relative group w-20 h-20 rounded-full overflow-hidden border-2 border-slate-200 bg-slate-50 flex items-center justify-center cursor-pointer hover:border-sky-400 transition shadow-inner">
+          <img v-if="previewUrl" :src="previewUrl" class="w-full h-full object-cover" />
+          <span v-else class="text-slate-400 text-3xl font-sans">👤</span>
+          <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition">
+            ອັບໂຫຼດຮູບ
+          </div>
+          <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" @change="onFileChange" />
+        </div>
+        <p v-if="profileImageUrlError" class="text-xs text-red-500 mt-1">{{ profileImageUrlError }}</p>
+      </div>
+
       <!-- Email -->
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">Email</label>
@@ -89,6 +102,8 @@ import { getOneUserUseCase } from "../../application/use-cases/get-user.usecase"
 import { UpdateUserUseCase } from "../../application/use-cases/update-users.usecase";
 import { useField } from "vee-validate";
 import { useToastStore } from "../../../../stores/toast";
+import { getImageUrl } from "../../../../shared/utils/image.util";
+import axios from "../../../../service/axios";
 
 const repo = new UserRepositoryImpl();
 const usecase = new CreateUserUseCase(repo);
@@ -96,6 +111,7 @@ const editUsecase = new getOneUserUseCase(repo);
 const updateUsecase = new UpdateUserUseCase(repo);
 const toastStore = useToastStore();
 const serverError = ref("");
+const previewUrl = ref("");
 const props = defineProps<{ editId?: string | number }>();
 
 const userSchema = yup.object({
@@ -104,11 +120,12 @@ const userSchema = yup.object({
   password: yup.string().min(6, "ລະຫັດຜ່ານຕ້ອງຢ່າງໜ້ອຍ 6 ຕົວ").required("ກະລຸນາໃສ່ລະຫັດຜ່ານ"),
   role: yup.string().required("ກະລຸນາເລືອກສິດ"),
   phone: yup.string().required("ກະລຸນາໃສ່ເບີໂທ"),
+  profileImageUrl: yup.string().nullable().optional()
 });
 
 const { handleSubmit, defineField, setFieldValue, handleReset } = useForm({
   validationSchema: userSchema,
-  initialValues: { fullName: "", email: "", password: "", role: "", phone: "" },
+  initialValues: { fullName: "", email: "", password: "", role: "", phone: "", profileImageUrl: "" },
 });
 
 const [fullName, fullNameProps] = defineField("fullName");
@@ -122,6 +139,7 @@ const { errorMessage: emailError } = useField("email");
 const { errorMessage: passwordError } = useField("password");
 const { errorMessage: roleError } = useField("role");
 const { errorMessage: phoneError } = useField("phone");
+const { errorMessage: profileImageUrlError } = useField("profileImageUrl");
 
 // helper ດຶງ message ຈາກ axios error
 function parseServerError(e: any): string {
@@ -131,6 +149,30 @@ function parseServerError(e: any): string {
   if (Array.isArray(msg)) return msg.join(", ");
   return "ເກີດຂໍ້ຜິດພາດ";
 }
+
+const onFileChange = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+
+  previewUrl.value = URL.createObjectURL(file);
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await axios.post("/upload/image", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+
+    const url = res.data?.url || res.data;
+    setFieldValue("profileImageUrl", url);
+  } catch (err) {
+    console.error("Upload error:", err);
+    toastStore.toast("ອັບໂຫຼດຮູບພາບບໍ່ສຳເລັດ ❌");
+  }
+};
 
 const onSubmit = handleSubmit(async (values) => {
   serverError.value = "";
@@ -160,15 +202,24 @@ const editUser = async (id: string | number) => {
   const res = await editUsecase.execute(id);
   setFieldValue("email", res.data.email);
   setFieldValue("password", res.data.password);
-  setFieldValue("role", res.data.role);
   setFieldValue("fullName", res.data.fullName);
   setFieldValue("phone", res.data.phone);
+  
+  const rawUrl = res.data.profileImageUrl ?? res.data.profile_image_url;
+  const cleanUrl = (!rawUrl || rawUrl === "null" || rawUrl === "undefined" || String(rawUrl).trim() === "") ? "" : rawUrl;
+  setFieldValue("profileImageUrl", cleanUrl);
+  if (cleanUrl) {
+    previewUrl.value = getImageUrl(cleanUrl);
+  } else {
+    previewUrl.value = "";
+  }
 };
 
 watch(
   () => props.editId,
   (newValue) => {
     serverError.value = "";
+    previewUrl.value = "";
     if (newValue) editUser(newValue);
     else handleReset();
   },

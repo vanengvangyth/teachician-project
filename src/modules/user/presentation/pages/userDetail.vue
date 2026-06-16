@@ -13,14 +13,6 @@
           <p class="text-xs text-slate-400 mt-0.5">User ID: #{{ item?.id }}</p>
         </div>
       </div>
-
-      <!-- Quick Action Buttons -->
-      <button @click="openEdit" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-xl shadow-md shadow-amber-200 transition flex items-center gap-1.5">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-        </svg>
-        ແກ້ໄຂຂໍ້ມູນ
-      </button>
     </div>
 
     <!-- MAIN PROFILE CARD -->
@@ -30,8 +22,8 @@
       <div class="h-32 bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 relative">
         <div class="absolute -bottom-14 left-8 flex items-end gap-5">
           <!-- Profile Image / Initial container -->
-          <div class="w-28 h-28 rounded-2xl bg-gradient-to-tr from-sky-400 to-indigo-500 border-4 border-white shadow-md flex items-center justify-center text-white text-3xl font-black">
-            {{ item.fullName?.charAt(0).toUpperCase() || "U" }}
+          <div class="w-28 h-28 rounded-2xl bg-gradient-to-tr from-sky-400 to-indigo-500 border-4 border-white shadow-md flex items-center justify-center text-white text-3xl font-black overflow-hidden">
+            <img :src="getImageUrl(item.profileImageUrl)" alt="Profile" class="w-full h-full object-cover" @error="(e) => (e.target as HTMLImageElement).src = '/placeholder.png'" />
           </div>
 
           <!-- Name and Badges -->
@@ -168,6 +160,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import type { User } from "../../domain/entities/user.entity";
+import { getImageUrl } from "../../../../shared/utils/image.util";
 
 const router = useRouter();
 
@@ -175,17 +168,9 @@ const item = ref<User | null>(null);
 const error = ref<string | null>(null);
 
 const goBack = () => {
-  router.push("/user");
+  router.push("/users");
 };
 
-const openEdit = () => {
-  if (item.value) {
-    router.push({
-      path: "/user",
-      query: { id: item.value.id }
-    });
-  }
-};
 
 const roleClass = (role: string) => {
   const map: any = {
@@ -200,7 +185,13 @@ onMounted(() => {
   // อ่านข้อมูล user จาก router state ที่ส่งมาจาก List page
   const stateUser = (history.state as any)?.user;
   if (stateUser && stateUser.id) {
-    item.value = stateUser;
+    const rawUrl = stateUser.profileImageUrl ?? stateUser.profile_image_url;
+    const cleanUrl = (!rawUrl || rawUrl === "null" || rawUrl === "undefined" || String(rawUrl).trim() === "") ? null : rawUrl;
+    
+    item.value = {
+      ...stateUser,
+      profileImageUrl: cleanUrl
+    };
   } else {
     error.value = "ບໍ່ພົບຂໍ້ມູນຜູ້ໃຊ້ — ກະລຸນາກັບໄປໜ້າລາຍການ";
   }

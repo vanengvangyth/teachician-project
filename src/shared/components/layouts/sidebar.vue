@@ -27,7 +27,7 @@
       <RouterLink class="sidebar-item" to="/job">
         <p>
           <Briefcase class="w-4 h-4 mx-2" />
-          <span class="label">ຈັດການວຽກງານ</span>
+          <span class="label">ຈັດການຂໍ້ມູນວຽກ</span>
         </p>
       </RouterLink>
 

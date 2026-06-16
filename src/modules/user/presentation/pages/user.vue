@@ -7,6 +7,7 @@ import { GetUsersUseCase } from "../../application/use-cases/get-users.usecase";
 import { softDeleteUserUseCase } from "../../application/use-cases/soft-delete.usecase";
 import userForm from "./userForm.vue";
 import Paginator from "../../../../shared/components/paginator.vue";
+import { getImageUrl } from "../../../../shared/utils/image.util.ts";
 
 const items = ref<User[]>([]);
 const search = ref("");
@@ -39,12 +40,6 @@ const currentPage = computed(() => {
   return 1;
 });
 
-const selectedRole = "User";
-
-const roleClass = (role: string) => {
-  return "bg-blue-100 text-blue-700 border border-blue-200";
-};
-
 async function loadUsers() {
   try {
     isLoading.value = true;
@@ -64,7 +59,14 @@ async function loadUsers() {
 
     data = data.filter(u => u.role.toLowerCase() === "user");
 
-    items.value = data;
+    items.value = data.map(u => {
+      const rawUrl = u.profileImageUrl ?? (u as any).profile_image_url;
+      const cleanUrl = (!rawUrl || rawUrl === "null" || rawUrl === "undefined" || String(rawUrl).trim() === "") ? null : rawUrl;
+      return {
+        ...u,
+        profileImageUrl: cleanUrl
+      };
+    });
     totalUsers.value = result.total;
   } catch (error) {
     console.error("🔥 Load users failed:", error);
@@ -122,6 +124,7 @@ const closeFunction = () => {
   router.replace({ path: route.path, query: { ...route.query, id: undefined } });
   loadUsers();
 };
+
 onMounted(loadUsers);
 </script>
 
@@ -129,11 +132,13 @@ onMounted(loadUsers);
   <div class="min-h-screen p-6 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg max-h-[60vh] overflow-y-auto">
     <div class="flex items-center justify-between p-6 border-b">
       <h1 class="text-2xl font-bold text-slate-800">ຈັດການຂໍ້ມູນລູກຄ້າ</h1>
-      <button
-        class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
-        @click="() => { editId = undefined; showForm = true; }">
-        + ເພີ່ມລູກຄ້າໃໝ່
-      </button>
+      <div class="flex gap-4">
+        <button
+          class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
+          @click="() => { editId = undefined; showForm = true; }">
+          + ເພີ່ມລູກຄ້າໃໝ່
+        </button>
+      </div>
     </div>
 
     <userForm v-if="showForm" :edit-id="editId" @closeForm="closeFunction()" />
@@ -162,9 +167,11 @@ onMounted(loadUsers);
       <table class="w-full text-sm rounded-lg">
         <thead class="bg-slate-100 text-slate-600">
           <tr>
+            <th class="px-6 py-3 text-left font-semibold">ຮູບພາບ</th>
             <th class="px-6 py-3 text-left font-semibold">ຊື່</th>
             <th class="px-6 py-3 text-left font-semibold">ອີເມວ</th>
             <th class="px-6 py-3 text-left font-semibold">ເບີໂທ</th>
+            <th class="px-6 py-3 text-left font-semibold">ວັນທີສ້າງ</th>
             <th class="px-6 py-3 text-right font-semibold">ຈັດການ</th>
           </tr>
         </thead>
@@ -172,15 +179,14 @@ onMounted(loadUsers);
         <tbody class="divide-y">
           <tr v-for="user in items" :key="user.id" class="hover:bg-slate-50 transition">
             <td class="px-6 py-4">
+              <img :src="getImageUrl(user.profileImageUrl)" alt="Profile"
+                class="w-10 h-10 object-cover rounded-full border border-slate-200"
+                @error="(e) => (e.target as HTMLImageElement).src = '/placeholder.png'" />
+            </td>
+            <td class="px-6 py-4">
               <div class="flex items-center gap-4">
-                <div
-                  class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-500 text-white font-bold shadow-sm">
-                  {{ user.fullName ? user.fullName.charAt(0).toUpperCase() : "U" }}
-                </div>
-                <div>
-                  <div class="font-semibold text-slate-800 flex items-center gap-2">
-                    {{ user.fullName }}
-                  </div>
+                <div class="font-semibold text-slate-800 flex items-center gap-2">
+                  {{ user.fullName }}
                 </div>
               </div>
             </td>
@@ -192,6 +198,11 @@ onMounted(loadUsers);
             <td>
               <div class="font-semibold text-slate-800">
                 {{ user.phone }}
+              </div>
+            </td>
+            <td>
+              <div class="font-semibold text-slate-800">
+                {{ new Date(user.createdAt).toLocaleDateString() }}
               </div>
             </td>
             <td class="px-6 py-4 text-right">

@@ -3,9 +3,9 @@ import type { Category } from "../../../category/domain/entities/category.entity
 
 export interface Technician_service {
   id: number;
-  technicianId?: number;
+  technicianId?: number | null;
   technician?: Techician;
-  categoryId?: number;
+  categoryId?: number | null;
   category?: Category;
 
   minPrice: number;

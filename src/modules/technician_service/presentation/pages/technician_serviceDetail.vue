@@ -28,7 +28,7 @@
         <!-- Technician Info Card -->
         <div class="bg-white rounded-2xl shadow-xl shadow-slate-100/50 border border-slate-100 p-6 flex flex-col items-center text-center">
           <div class="w-20 h-20 rounded-2xl overflow-hidden border-4 border-slate-50 bg-slate-100 shadow-md flex items-center justify-center mb-4">
-            <img v-if="item.technician?.user?.profileImageUrl" :src="item.technician.user.profileImageUrl" alt="Profile" class="w-full h-full object-cover" />
+            <img v-if="item.technician?.user?.profileImageUrl" :src="getImageUrl(item.technician.user.profileImageUrl)" alt="Profile" class="w-full h-full object-cover" />
             <div v-else class="w-full h-full bg-gradient-to-tr from-sky-400 to-indigo-500 flex items-center justify-center text-white text-2xl font-black">
               {{ item.technician?.user?.fullName?.charAt(0).toUpperCase() || "T" }}
             </div>
@@ -150,6 +150,7 @@ import { useRoute, useRouter } from "vue-router";
 import { Technician_serviceRepositoryImpl } from "../../infrastructure/repositories/technician_service.repository.impl";
 import { GetOneTechnician_serviceUseCase } from "../../application/use-cases/get-one-technician_services.usecase";
 import type { Technician_service } from "../../domain/entities/technician_service.entity";
+import { getImageUrl } from "../../../../shared/utils/image.util";
 
 const route = useRoute();
 const router = useRouter();
@@ -185,7 +186,11 @@ const loadDetail = async () => {
   try {
     const id = Number(route.params.id);
     const res: any = await getOne.execute(id);
-    item.value = res?.data ?? res;
+    const data = res?.data ?? res;
+    if (data && data.technician && data.technician.user) {
+      data.technician.user.profileImageUrl = data.technician.user.profileImageUrl ?? data.technician.user.profile_image_url ?? null;
+    }
+    item.value = data;
   } catch (error) {
     console.error("Load Technician Service Detail Failed:", error);
   }

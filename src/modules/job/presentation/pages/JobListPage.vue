@@ -8,6 +8,7 @@ import { SoftDeleteJobUseCase } from "../../application/use-cases/soft-delete-jo
 import Paginator from "../../../../shared/components/paginator.vue";
 import jobDeletePage from "./jobDeletePage.vue";
 import { useToastStore } from "../../../../stores/toast";
+import { getImageUrl } from "../../../../shared/utils/image.util.ts";
 
 const items = ref<Job[]>([]);
 const search = ref("");
@@ -129,6 +130,14 @@ async function confirmDelete() {
   }
 }
 
+const getAttachmentUrl = (attachments: any): string | undefined => {
+  if (!attachments) return undefined;
+  if (Array.isArray(attachments)) {
+    return attachments[0]?.fileUrl;
+  }
+  return attachments.fileUrl;
+};
+
 onMounted(loadItems);
 </script>
 
@@ -136,7 +145,7 @@ onMounted(loadItems);
   <div class="min-h-screen p-6 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg max-h-[60vh] overflow-y-auto">
     <!-- HEADER (OLD UI) -->
     <div class="flex items-center justify-between p-6 border-b">
-      <h1 class="text-2xl font-bold text-slate-800">ຈັດການວຽກ</h1>
+      <h1 class="text-2xl font-bold text-slate-800">ຈັດການຂໍ້ມູນວຽກ</h1>
 
       <div class="flex px-10 gap-4">
         <button
@@ -177,6 +186,7 @@ onMounted(loadItems);
       <table v-if="items.length > 0" class="w-full text-sm rounded-lg">
         <thead class="bg-slate-100 text-slate-600">
           <tr>
+            <th class="px-6 py-3 text-left font-semibold">ຮູບພາບ</th>
             <th class="px-6 py-3 text-left font-semibold">ຊື່ວຽກ</th>
             <th class="px-6 py-3 text-left font-semibold">ປະເພດວຽກ</th>
             <th class="px-6 py-3 text-left font-semibold">ປະເພດ</th>
@@ -188,6 +198,12 @@ onMounted(loadItems);
 
         <tbody class="divide-y">
           <tr v-for="item in items" :key="item.jobId" class="hover:bg-slate-50 transition">
+            <!-- fileUrl -->
+            <td class="px-6 py-4">
+              <img v-if="getAttachmentUrl(item.attachments)" :src="getImageUrl(getAttachmentUrl(item.attachments))" alt="document"
+                class="w-10 h-10 object-cover rounded border"
+                @error="(e) => (e.target as HTMLImageElement).src = '/placeholder.png'" />
+            </td>
             <td class="px-6 py-4">
               <div class="font-semibold text-slate-800">
                 {{ item.title || ("#" + item.jobId) }}

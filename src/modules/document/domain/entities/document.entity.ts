@@ -21,11 +21,11 @@ export interface Document {
 }
 
 export interface PaginatedDocuments {
-data: Document[];
-total: number;
+  data: Document[];
+  total: number;
 }
 
 export interface SingleDocumentResponse {
-data: Document;
+  data: Document;
 }
 

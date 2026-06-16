@@ -1,7 +1,11 @@
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+import { apiURL } from "../../global-variables";
 
-export const getImageUrl = (path: string | undefined): string => {
-  if (!path) return "/placeholder.png";
+const BASE_URL = (import.meta.env.VITE_API_URL ?? apiURL ?? "http://localhost:3000").replace(/\/$/, "");
+
+export const getImageUrl = (path: string | undefined | null): string => {
+  if (!path || path === "null" || path === "undefined" || String(path).trim() === "") {
+    return "/placeholder.png";
+  }
   if (path.startsWith("http")) return path;
   
   // ໃຫ້ໝັ້ນໃຈວ່າ prefix ຕົງກັບທີ່ຕັ້ງໃນ Backend ('/uploads/')
@@ -9,8 +13,8 @@ export const getImageUrl = (path: string | undefined): string => {
   
   // ຖ້າໃນ DB ບໍ່ມີຄຳວ່າ uploads ຕິດມາ, ໃຫ້ຕື່ມໃສ່ບ່ອນນີ້
   if (!cleanPath.startsWith("uploads/")) {
-     return `http://localhost:3000/uploads/${cleanPath}`;
+     return `${BASE_URL}/uploads/${cleanPath}`;
   }
   
-  return `http://localhost:3000/${cleanPath}`;
+  return `${BASE_URL}/${cleanPath}`;
 };

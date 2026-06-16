@@ -7,20 +7,17 @@ export class UserRepositoryImpl implements UserRepository {
     return userApi.getone(id);
   }
   async softDelete(id: any): Promise<any> {
-
-    await userApi.softDelete(id);
-    throw new Error('Method not implemented')
+    return userApi.softDelete(id);
   }
-  restore(id: any): Promise<any> {
-    throw new Error('Method not implemented.');
+  async restore(id: any): Promise<any> {
+    return userApi.restore(id);
   }
-  hardDelete(id: any): Promise<any> {
-    throw new Error('Method not implemented.');
+  async hardDelete(id: any): Promise<any> {
+    return userApi.hardDelete(id);
   }
   async getAll(page: any, perPage: any, search: string, role?: string): Promise<any> {
     return userApi.getAll(page, perPage, search, role);
   }
-
 
   async create(data: any) {
     return userApi.create(data);

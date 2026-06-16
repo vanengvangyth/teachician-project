@@ -1,13 +1,21 @@
+export interface NotificationUser {
+  id: number;
+  email: string;
+  fullName?: string;
+  phone?: string;
+  profileImageUrl?: string | null;
+  role: string;
+  permissions: string[];
+  isVerified: boolean;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
+}
 export interface Notification {
   id: number;
   userId: number;
-  user?: {
-    id: number;
-    email: string;
-    fullName: string;
-    role: string;
-    permissions: string[];
-  };
+  user?: NotificationUser
   titleLao?: string | null;
   titleEng?: string | null;
   message?: string;
@@ -20,10 +28,10 @@ export interface Notification {
 }
 
 export interface PaginatedNotifications {
-data: Notification[];
-total: number;
+  data: Notification[];
+  total: number;
 }
 
 export interface SingleNotificationResponse {
-data: Notification;
+  data: Notification;
 }

@@ -1,18 +1,9 @@
+import type { Techician } from '../../../techician/domain/entities/techician.entity';
+
 export interface Service_area {
   id: number;
-  technician?: {
-    id: number;
-    user?: {
-      id: number;
-      email: string;
-      fullName: string;
-      role: string;
-      permissions: string[];
-    }
-    descriptionLao?: string;
-    descriptionEng?: string;
-    yearsOfExperience?: number;
-  }
+  technicianId?: number | null;
+  technician?: Techician;
   province: string;
   district: string;
   village?: string;
@@ -23,10 +14,10 @@ export interface Service_area {
 }
 
 export interface PaginatedService_areas {
-data: Service_area[];
-total: number;
+  data: Service_area[];
+  total: number;
 }
 
 export interface SingleService_areaResponse {
-data: Service_area;
+  data: Service_area;
 }

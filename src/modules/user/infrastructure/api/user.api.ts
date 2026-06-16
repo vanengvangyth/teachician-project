@@ -17,13 +17,29 @@ export const userApi = {
   },
 
   async update(id: any, data: any) {
-    const res = await axios.put('users/' + id, data);
-    return res.data;
+    try {
+      const res = await axios.put('user/' + id, data);
+      return res.data;
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        const res = await axios.put('users/' + id, data);
+        return res.data;
+      }
+      throw err;
+    }
   },
 
   async getone(id: any): Promise<any> {
-    const res = await axios.get(`users/${id}`);
-    return res.data;
+    try {
+      const res = await axios.get(`user/${id}`);
+      return res.data;
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        const res = await axios.get(`users/${id}`);
+        return res.data;
+      }
+      throw err;
+    }
   },
 
   softDelete(id: any) {
@@ -44,5 +60,5 @@ export const userApi = {
   async hardDelete(id: number) {
     const res = await axios.delete(`user/hard/${id}`)
     return res;
-  }
+  },
 };

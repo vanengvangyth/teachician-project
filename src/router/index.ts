@@ -39,6 +39,12 @@ const router = createRouter({
       name: "category",
       component: () => import("../modules/category/presentation/pages/CategoryListPage.vue")
     },
+    {
+      path: "/category/:id/detail",
+      name: "category.detail",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/category/presentation/pages/categoryDetail.vue")
+    },
 
     //Comment
     {
@@ -124,6 +130,12 @@ const router = createRouter({
       path: "/service_area",
       name: "service_area",
       component: () => import("../modules/service_area/presentation/pages/Service_areaListPage.vue")
+    },
+    {
+      path: "/service_area/:id/detail",
+      name: "service_area.detail",
+      meta: { requiresAuth: true },
+      component: () => import("../modules/service_area/presentation/pages/service_areaDetail.vue")
     },
 
     //Technician_service

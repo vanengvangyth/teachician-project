@@ -5,8 +5,12 @@ export interface Job {
     email: string;
     fullName: string;
     role: string;
+    phone: string;
+    profileImageUrl: string;
     permission: string;
   }
+  workerId: number;
+  worker: string;
   title: string;
   description: string;
   category?: {
@@ -24,6 +28,12 @@ export interface Job {
   status: string;
   cancellationReason: string;
   canelledByuserId: number;
+  postedAgo: string;
+  attachments?: {
+    attachmentId: number;
+    fileUrl: string;
+    fileType: string;
+  }
   createdAt: string;
   updatedAt: string;
   deletedAt: string;

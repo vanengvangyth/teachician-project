@@ -116,7 +116,10 @@ const [villageValue] = defineField("village");
 // CREATE
 const onSubmit = handleSubmit(async (values) => {
   try {
-    await createUseCase.execute(values);
+    await createUseCase.execute({
+      ...values,
+      technicianId: values.technicianId ? Number(values.technicianId) : null,
+    });
 
     toastStore.toast("ສ້າງສຳເລັດ");
     emits("closeForm", false);
@@ -130,7 +133,10 @@ const onSubmit = handleSubmit(async (values) => {
 const onUpdate = handleSubmit(async (values) => {
   try {
     const id = Number(route.query.id);
-    await updateUseCase.execute(id, values);
+    await updateUseCase.execute(id, {
+      ...values,
+      technicianId: values.technicianId ? Number(values.technicianId) : null,
+    });
 
     toastStore.toast("ອັບເດດສຳເລັດ");
     emits("closeForm", false);

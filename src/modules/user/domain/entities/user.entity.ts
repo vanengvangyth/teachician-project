@@ -5,9 +5,13 @@ export interface User {
   fullName: string;
   role: string;
   phone: string;
+  profileImageUrl?: string | null;
+  profile_image_url?: string | null;
   isActive: boolean;
   isVerified: boolean;
   createdAt: string;
+  deletedAt: string;
+  updatedAt: string;
 }
 
 export interface PaginatedUsers {

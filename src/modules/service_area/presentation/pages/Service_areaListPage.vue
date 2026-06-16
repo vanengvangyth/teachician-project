@@ -41,6 +41,10 @@ const currentPage = computed(() => {
   return 1;
 });
 
+function openDetail(id: number) {
+  router.push(`/service_area/${id}/detail`);
+}
+
 async function loadItems() {
   try {
     isLoading.value = true;
@@ -227,6 +231,11 @@ onMounted(loadItems);
             <!-- Actions -->
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-2">
+                <button class="rounded-md px-3 py-1 text-amber-700 hover:bg-amber-250 transition"
+                  @click="openDetail(item.id)">
+                  👁️
+                </button>
+
                 <button @click="() => {
                   showForm = true;
                   router.push({

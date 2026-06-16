@@ -54,7 +54,7 @@
           <!-- Profile Image container -->
           <div class="relative group">
             <div class="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white bg-slate-100 shadow-md flex items-center justify-center">
-              <img v-if="item.user?.profileImageUrl" :src="item.user.profileImageUrl" alt="Profile Image" class="w-full h-full object-cover" />
+              <img v-if="item.user?.profileImageUrl" :src="getImageUrl(item.user.profileImageUrl)" alt="Profile Image" class="w-full h-full object-cover" />
               <div v-else class="w-full h-full bg-gradient-to-tr from-sky-400 to-indigo-500 flex items-center justify-center text-white text-3xl font-black">
                 {{ item.user?.fullName?.charAt(0).toUpperCase() || "T" }}
               </div>
@@ -227,6 +227,7 @@ import { RejectTechicianUseCase } from "../../application/use-cases/reject-techi
 import { useToastStore } from "../../../../stores/toast";
 
 import type { Techician } from "../../domain/entities/techician.entity";
+import { getImageUrl } from "../../../../shared/utils/image.util";
 
 const route = useRoute();
 const router = useRouter();

@@ -6,11 +6,13 @@ import { UserRepositoryImpl } from "../../infrastructure/repositories/user.repos
 import { GetUsersUseCase } from "../../application/use-cases/get-users.usecase";
 import { softDeleteUserUseCase } from "../../application/use-cases/soft-delete.usecase";
 import userForm from "./userForm.vue";
+import userDeletePage from "./userDeletePage.vue";
 import Paginator from "../../../../shared/components/paginator.vue";
 
 const items = ref<User[]>([]);
 const search = ref("");
 const showForm = ref(false);
+const showDeleted = ref(false);
 const perPage = 10;
 
 const route = useRoute();
@@ -117,6 +119,11 @@ const closeFunction = () => {
   loadUsers();
 };
 
+const closeDeletedFunction = () => {
+  showDeleted.value = false;
+  loadUsers();
+};
+
 onMounted(loadUsers);
 </script>
 
@@ -127,15 +134,24 @@ onMounted(loadUsers);
     <!-- HEADER -->
     <div class="flex items-center justify-between p-6 border-b">
       <h1 class="text-2xl font-bold text-slate-800">User Management</h1>
-      <button
-        class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
-        @click="showForm = true"
-      >
-        + Add New User
-      </button>
+      <div class="flex gap-4">
+        <button
+          class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
+          @click="showDeleted = !showDeleted"
+        >
+          Restore Deleted Users
+        </button>
+        <button
+          class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
+          @click="showForm = true"
+        >
+          + Add New User
+        </button>
+      </div>
     </div>
 
     <userForm v-if="showForm" @closeForm="closeFunction()" />
+    <userDeletePage v-if="showDeleted" @closeForm="closeDeletedFunction()" />
 
     <!-- SEARCH & FILTER -->
     <div class="flex flex-col gap-3 p-6 sm:flex-row">
