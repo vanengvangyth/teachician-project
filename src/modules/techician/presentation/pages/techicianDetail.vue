@@ -54,10 +54,8 @@
           <!-- Profile Image container -->
           <div class="relative group">
             <div class="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white bg-slate-100 shadow-md flex items-center justify-center">
-              <img v-if="item.user?.profileImageUrl" :src="getImageUrl(item.user.profileImageUrl)" alt="Profile Image" class="w-full h-full object-cover" />
-              <div v-else class="w-full h-full bg-gradient-to-tr from-sky-400 to-indigo-500 flex items-center justify-center text-white text-3xl font-black">
-                {{ item.user?.fullName?.charAt(0).toUpperCase() || "T" }}
-              </div>
+              <img :src="getImageUrl(item.user?.profileImageUrl)" alt="Profile Image" class="w-full h-full object-cover"
+                @error="(e) => (e.target as HTMLImageElement).src = '/placeholder.png'" />
             </div>
             <!-- Verification icon badge overlay -->
             <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full border-4 border-white flex items-center justify-center shadow-md"
@@ -81,8 +79,8 @@
                 {{ item.isApproved ? "ອະນຸມັດແລ້ວ" : "ລໍຖ້າອະນຸມັດ" }}
               </span>
             </div>
-            <p class="text-sm text-sky-100 font-medium mt-1">
-              {{ item.user?.role === 'technician' ? 'ນາຍຊ່າງມືອາຊີບ' : 'ນາຍຊ່າງ' }}
+            <p class="text-sm text-sky-500 font-medium mt-1">
+              {{ ['technician', 'technicians'].includes(item.user?.role?.toLowerCase() || '') ? 'ນາຍຊ່າງມືອາຊີບ' : 'ນາຍຊ່າງ' }}
             </p>
           </div>
         </div>
@@ -196,7 +194,7 @@
           </div>
           <div>
             <span class="block uppercase text-lg tracking-wider text-slate-600 mb-0.5">ອະນຸມັດໂດຍ Admin</span>
-            <span>{{ item.approvedByAdminId || "ຍັງບໍ່ໄດ້ລະບຸ" }}</span>
+            <span>{{ approvedByAdminName }}</span>
           </div>
           <div>
             <span class="block uppercase text-lg tracking-wider text-slate-600 mb-0.5">ວັນທີອະນຸມັດ</span>
@@ -228,6 +226,9 @@ import { useToastStore } from "../../../../stores/toast";
 
 import type { Techician } from "../../domain/entities/techician.entity";
 import { getImageUrl } from "../../../../shared/utils/image.util";
+import { getOneUserUseCase } from "../../../user/application/use-cases/get-user.usecase";
+import { UserRepositoryImpl } from "../../../user/infrastructure/repositories/user.repository.impl";
+import { UpdateUserUseCase } from "../../../user/application/use-cases/update-users.usecase";
 
 const route = useRoute();
 const router = useRouter();
@@ -240,6 +241,11 @@ const rejectUseCase = new RejectTechicianUseCase(repo);
 
 const item = ref<Techician | null>(null);
 const isActionLoading = ref(false);
+
+const userRepo = new UserRepositoryImpl();
+const getUserUseCase = new getOneUserUseCase(userRepo);
+const updateUserUseCase = new UpdateUserUseCase(userRepo);
+const approvedByAdminName = ref("");
 
 const goBack = () => {
   router.push("/techician");
@@ -264,16 +270,36 @@ const loadDetail = async () => {
       deletedAt: data?.deletedAt ?? data?.deleted_at ?? null,
 
       // ✅ fix user typo safety
-      user: data?.user
+      user: (data?.user || data?.fullName || data?.email || data?.phone || data?.phone_number || data?.phoneNumber)
         ? {
-          ...data.user,
-          isVerified: data.user.is_verified ?? data.user.isVerified ?? false,
-          fullName: data.user.fullName ?? data.user.fullNam ?? "-",
-          phone: data.user.phone ?? data.user.phone_number ?? "-",
-          profileImageUrl: data.user.profileImageUrl ?? data.user.profile_image_url ?? null,
+          ...(data.user ?? {}),
+          isVerified: data.user?.is_verified ?? data.user?.isVerified ?? data?.isVerified ?? false,
+          fullName: data.user?.fullName ?? data.user?.fullNam ?? data?.fullName ?? "-",
+          phone: data.user?.phone ?? data.user?.phone_number ?? data.user?.phoneNumber ?? data.user?.tel ?? data?.phone ?? data?.phone_number ?? data?.phoneNumber ?? "-",
+          profileImageUrl: data.user?.profileImageUrl ?? data.user?.profile_image_url ?? data?.profileImageUrl ?? data?.profile_image_url ?? null,
         }
         : undefined,
     };
+    console.log("Loaded technician detail:", item.value);
+
+    // Fetch Admin name if approvedByAdminId is present
+    const adminId = data.approvedByAdminId ?? data.approved_by_admin_id;
+    if (adminId) {
+      try {
+        const adminRes = await getUserUseCase.execute(adminId);
+        const adminData = adminRes?.data ?? adminRes;
+        if (adminData && adminData.fullName) {
+          approvedByAdminName.value = adminData.fullName;
+        } else {
+          approvedByAdminName.value = `Admin ID: #${adminId}`;
+        }
+      } catch (err) {
+        console.error("Error loading admin detail:", err);
+        approvedByAdminName.value = `Admin ID: #${adminId}`;
+      }
+    } else {
+      approvedByAdminName.value = "ຍັງບໍ່ໄດ້ລະບຸ";
+    }
   } catch (e) {
     console.error("Error loading details:", e);
     toastStore.toast("ໂຫຼດຂໍ້ມູນບໍ່ສໍາເລັດ");
@@ -284,12 +310,29 @@ const handleApprove = async () => {
   if (!item.value) return;
   try {
     isActionLoading.value = true;
+    console.log("Approving technician with ID:", item.value.id);
     await approveUseCase.execute(item.value.id);
+
+    // Update user's role to TECHNICIANS and set verified status in the DB
+    const userId = item.value.userId ?? (item.value as any).user_id ?? item.value.user?.id;
+    console.log("Resolved user ID for role update:", userId);
+    if (userId) {
+      const updateRes = await updateUserUseCase.execute(userId, { 
+        role: "TECHNICIANS",
+        isVerified: true,
+        is_verified: true
+      } as any);
+      console.log("Role update API response:", updateRes);
+    } else {
+      console.warn("Could not find userId to update role.");
+    }
+
     toastStore.toast("ອະນຸມັດສຳເລັດ");
     await loadDetail(); // Reload updated information
-  } catch (error) {
+  } catch (error: any) {
     console.error("Approval failed:", error);
-    toastStore.toast("ອະນຸມັດບໍ່ສຳເລັດ");
+    const errorMsg = error.response?.data?.message ?? error.message ?? error;
+    toastStore.toast("ອະນຸມັດບໍ່ສຳເລັດ: " + errorMsg);
   } finally {
     isActionLoading.value = false;
   }
@@ -299,12 +342,29 @@ const handleReject = async () => {
   if (!item.value) return;
   try {
     isActionLoading.value = true;
+    console.log("Rejecting technician with ID:", item.value.id);
     await rejectUseCase.execute(item.value.id);
-    toastStore.toast("ປະຕິເສດ/ຍົກເລີກການອະນຸມັດສຳເລັດ");
+
+    // Update user's role back to USER and revoke verified status in the DB
+    const userId = item.value.userId ?? (item.value as any).user_id ?? item.value.user?.id;
+    console.log("Resolved user ID for role reset:", userId);
+    if (userId) {
+      const updateRes = await updateUserUseCase.execute(userId, { 
+        role: "USER",
+        isVerified: false,
+        is_verified: false
+      } as any);
+      console.log("Role reset API response:", updateRes);
+    } else {
+      console.warn("Could not find userId to reset role.");
+    }
+
+    toastStore.toast("ປະຕິເສດສຳເລັດ");
     await loadDetail(); // Reload updated information
-  } catch (error) {
+  } catch (error: any) {
     console.error("Rejection failed:", error);
-    toastStore.toast("ປະຕິເສດບໍ່ສຳເລັດ");
+    const errorMsg = error.response?.data?.message ?? error.message ?? error;
+    toastStore.toast("ປະຕິເສດບໍ່ສຳເລັດ: " + errorMsg);
   } finally {
     isActionLoading.value = false;
   }

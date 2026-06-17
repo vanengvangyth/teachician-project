@@ -11,6 +11,7 @@ import techicianForm from "./techicianForm.vue";
 import Paginator from "../../../../shared/components/paginator.vue";
 import techicianDeletePage from "./techicianDeletePage.vue";
 import { useToastStore } from "../../../../stores/toast";
+import { getImageUrl } from "../../../../shared/utils/image.util";
 
 const items = ref<Techician[]>([]);
 const search = ref("");
@@ -77,11 +78,12 @@ async function loadItems() {
       isApproved: i.is_approved ?? i.isApproved ?? false,
       createdAt: i.created_at ?? i.createdAt ?? null,
       updatedAt: i.updated_at ?? i.updatedAt ?? null,
-      user: i.user
+      user: (i.user || i.fullName || i.email || i.phone || i.phone_number || i.phoneNumber)
         ? {
-          ...i.user,
-          isVerified: i.user.is_verified ?? i.user.isVerified ?? false,
-          fullName: i.user.fullName ?? i.user.fullNam ?? "-",
+          ...(i.user ?? {}),
+          isVerified: i.user?.is_verified ?? i.user?.isVerified ?? i.isVerified ?? false,
+          fullName: i.user?.fullName ?? i.user?.fullNam ?? i.fullName ?? "-",
+          profileImageUrl: i.user?.profileImageUrl ?? i.user?.profile_image_url ?? i.profileImageUrl ?? i.profile_image_url ?? null,
         }
         : undefined,
     }));
@@ -140,21 +142,6 @@ async function confirmDelete() {
     showDeleteModal.value = false;
     selectedDeleteId.value = null;
   }
-}
-
-// ─── APPROVE / REJECT ─────────────────────────────────────
-function askApprove(item: Techician) {
-  selectedActionId.value = item.id;
-  selectedName.value = item.user?.fullName || `#${item.id}`;
-  confirmAction.value = "approve";
-  showConfirmModal.value = true;
-}
-
-function askReject(item: Techician) {
-  selectedActionId.value = item.id;
-  selectedName.value = item.user?.fullName || `#${item.id}`;
-  confirmAction.value = "reject";
-  showConfirmModal.value = true;
 }
 
 async function confirmActionHandler() {
@@ -255,7 +242,7 @@ onMounted(loadItems);
       <table v-if="items.length > 0" class="w-full text-sm rounded-lg">
         <thead class="bg-slate-100 text-slate-600">
           <tr>
-            <th class="px-6 py-3 text-left font-semibold">#</th>
+            <th class="px-6 py-3 text-left font-semibold">ຮູບພາບ</th>
             <th class="px-6 py-3 text-left font-semibold">ຊື່</th>
             <th class="px-6 py-3 text-left font-semibold">ຄຳອະທິບາຍ</th>
             <th class="px-6 py-3 text-left font-semibold">ປະສົບການ</th>
@@ -267,9 +254,11 @@ onMounted(loadItems);
         </thead>
 
         <tbody class="divide-y">
-          <tr v-for="(item, index) in items" :key="item.id" class="hover:bg-slate-50 transition">
-            <td class="px-6 py-4 text-slate-500">
-              {{ (currentPage - 1) * perPage + index + 1 }}
+          <tr v-for="(item) in items" :key="item.id" class="hover:bg-slate-50 transition">
+            <td class="px-6 py-4">
+              <img :src="getImageUrl(item.user?.profileImageUrl)" alt="Profile"
+                class="w-10 h-10 object-cover rounded-full border border-slate-200"
+                @error="(e) => (e.target as HTMLImageElement).src = '/placeholder.png'" />
             </td>
 
             <td class="px-6 py-4">
@@ -312,18 +301,6 @@ onMounted(loadItems);
 
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-2">
-                <div v-if="!item.isApproved" class="flex gap-1 mt-1">
-                  <button
-                    class="rounded px-2 py-0.5 bg-green-50 text-green-700 hover:bg-green-200 transition font-semibold text-xs"
-                    @click="askApprove(item)">
-                    ✅ ອະນຸມັດ
-                  </button>
-                  <button
-                    class="rounded px-2 py-0.5 bg-red-50 text-red-600 hover:bg-red-200 transition font-semibold text-xs"
-                    @click="askReject(item)">
-                    ❌ ປະຕິເສດ
-                  </button>
-                </div>
                 <button class="rounded-md px-3 py-1 text-amber-700 hover:bg-amber-200 transition"
                   @click="openEdit(item.id)">
                   👁️

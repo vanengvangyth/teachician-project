@@ -6,7 +6,6 @@ import { UserRepositoryImpl } from "../../infrastructure/repositories/user.repos
 import { GetUsersUseCase } from "../../application/use-cases/get-users.usecase";
 import { softDeleteUserUseCase } from "../../application/use-cases/soft-delete.usecase";
 import userForm from "./userForm.vue";
-import userDeletePage from "./userDeletePage.vue";
 import Paginator from "../../../../shared/components/paginator.vue";
 
 const items = ref<User[]>([]);
@@ -45,12 +44,14 @@ function onRoleChange(event: Event) {
 }
 
 const roleClass = (role: string) => {
+  const r = role ? role.toLowerCase() : "";
   const map: any = {
     admin: "bg-purple-100 text-purple-700 border border-purple-200",
     user: "bg-blue-100 text-blue-700 border border-blue-200",
     technician: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+    technicians: "bg-emerald-100 text-emerald-700 border border-emerald-200",
   };
-  return map[role.toLowerCase()] ?? "bg-slate-100 text-slate-700 border border-slate-200";
+  return map[r] ?? "bg-slate-100 text-slate-700 border border-slate-200";
 };
 
 async function loadUsers() {
@@ -69,9 +70,16 @@ async function loadUsers() {
   
   let data = result.data || [];
   if (selectedRole.value !== "All") {
-    const hasUnsupportedRole = data.some(u => u.role.toLowerCase() !== selectedRole.value.toLowerCase());
+    const isMatch = (userRole: string, filterRole: string) => {
+      const u = userRole ? userRole.toLowerCase() : "";
+      const f = filterRole ? filterRole.toLowerCase() : "";
+      if (u === f) return true;
+      if ((u === "technician" || u === "technicians") && (f === "technician" || f === "technicians")) return true;
+      return false;
+    };
+    const hasUnsupportedRole = data.some(u => !isMatch(u.role, selectedRole.value));
     if (hasUnsupportedRole) {
-      data = data.filter(u => u.role.toLowerCase() === selectedRole.value.toLowerCase());
+      data = data.filter(u => isMatch(u.role, selectedRole.value));
     }
   }
 
@@ -133,19 +141,19 @@ onMounted(loadUsers);
   >
     <!-- HEADER -->
     <div class="flex items-center justify-between p-6 border-b">
-      <h1 class="text-2xl font-bold text-slate-800">User Management</h1>
+      <h1 class="text-2xl font-bold text-slate-800">ຈັດການຜູ້ໃຊ້ທັງໝົດ</h1>
       <div class="flex gap-4">
         <button
           class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
           @click="showDeleted = !showDeleted"
         >
-          Restore Deleted Users
+          ກູ້ຄືນຂໍ້ມູນ
         </button>
         <button
           class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
           @click="showForm = true"
         >
-          + Add New User
+          + ເພີ່ມຜູ້ໃຊ້ໃໝ່
         </button>
       </div>
     </div>

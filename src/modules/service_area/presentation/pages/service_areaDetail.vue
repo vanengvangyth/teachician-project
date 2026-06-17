@@ -255,17 +255,23 @@ const loadDetail = async () => {
       deletedAt: data.deletedAt ?? data.deleted_at ?? null,
     };
 
-    if (item.value && item.value.technician) {
-      const rawTech: any = item.value.technician;
-      item.value.technician = {
+    const mapTechnician = (rawTech: any) => {
+      if (!rawTech) return undefined;
+      const hasUser = !!(rawTech.user || rawTech.fullName || rawTech.email || rawTech.phone || rawTech.phone_number || rawTech.phoneNumber);
+      return {
         ...rawTech,
-        user: rawTech.user ? {
-          ...rawTech.user,
-          profileImageUrl: rawTech.user.profileImageUrl ?? rawTech.user.profile_image_url ?? null,
-          fullName: rawTech.user.fullName ?? rawTech.user.fullNam ?? "-",
-          phone: rawTech.user.phone ?? rawTech.user.phone_number ?? "-",
+        user: hasUser ? {
+          ...(rawTech.user ?? {}),
+          fullName: rawTech.user?.fullName ?? rawTech.user?.fullNam ?? rawTech.fullName ?? "-",
+          email: rawTech.user?.email ?? rawTech.email ?? "-",
+          phone: rawTech.user?.phone ?? rawTech.user?.phone_number ?? rawTech.user?.phoneNumber ?? rawTech.phone ?? rawTech.phone_number ?? rawTech.phoneNumber ?? "-",
+          profileImageUrl: rawTech.user?.profileImageUrl ?? rawTech.user?.profile_image_url ?? rawTech.profileImageUrl ?? rawTech.profile_image_url ?? null,
         } : undefined
       };
+    };
+
+    if (item.value && item.value.technician) {
+      item.value.technician = mapTechnician(item.value.technician);
     } else {
       const targetTechId = item.value?.technicianId;
       if (item.value && targetTechId) {
@@ -273,15 +279,7 @@ const loadDetail = async () => {
           const techRes: any = await getOneTechUseCase.execute(targetTechId);
           const rawTech = techRes?.data?.data ?? techRes?.data ?? techRes;
           if (rawTech) {
-            item.value.technician = {
-              ...rawTech,
-              user: rawTech.user ? {
-                ...rawTech.user,
-                profileImageUrl: rawTech.user.profileImageUrl ?? rawTech.user.profile_image_url ?? null,
-                fullName: rawTech.user.fullName ?? rawTech.user.fullNam ?? "-",
-                phone: rawTech.user.phone ?? rawTech.user.phone_number ?? "-",
-              } : undefined
-            };
+            item.value.technician = mapTechnician(rawTech);
           }
         } catch (techErr) {
           console.error("Load Technician Detail Error in Service Area:", techErr);

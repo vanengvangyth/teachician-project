@@ -117,12 +117,12 @@
             <RouterLink to="/manage/service-area">ສະຖິຕິການປະກາດວຽກ</RouterLink>
           </li>
           <li>
-            <RouterLink to="/manage/technician-status">ສະຖານະການຢືນຢັນຕົວຕົນ</RouterLink>
+            <RouterLink class="text-sm" to="/manage/technician-status">ສະຖານະການຢືນຢັນຕົວຕົນ</RouterLink>
           </li>
         </ul>
       </div>
 
-      <RouterLink class="sidebar-item" :to="{ path: '/user', query: { page: '1', search: '' } }">
+      <RouterLink class="sidebar-item" to="/user">
         <p>
           <Users class="w-4 h-4 mx-2" />
           <span class="label">ຂໍ້ມູນພະນັກງານ</span>

@@ -173,7 +173,6 @@ onMounted(loadItems);
         <thead class="bg-slate-100 text-slate-600">
           <tr>
             <th class="px-6 py-3 text-left font-semibold">ຊື່</th>
-            <th class="px-6 py-3 text-left font-semibold">ຄຳອະທິບາຍ</th>
             <th class="px-6 py-3 text-left font-semibold">ຊື່ປະເພດ</th>
             <th class="px-6 py-3 text-left font-semibold">ຄຳອະທິບາຍ</th>
             <th class="px-6 py-3 text-left font-semibold">ລາຄາຕໍ່າສຸດ</th>
@@ -194,12 +193,6 @@ onMounted(loadItems);
             <td class="px-6 py-4">
               <div class="font-semibold text-slate-800">
                 {{ item.technician?.user?.fullName || ('#' + item.id) }}
-              </div>
-            </td>
-
-            <td class="px-6 py-4">
-              <div class="font-semibold text-slate-800">
-                {{ item.technician?.descriptionLao || ('#' + item.id) }}
               </div>
             </td>
 

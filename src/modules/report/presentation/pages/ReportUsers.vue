@@ -27,16 +27,12 @@
         <p class="stat-label">ທັງໝົດ</p>
         <p class="stat-value">{{ total }}</p>
       </div>
-      <div class="stat-card stat-card--purple">
-        <p class="stat-label">Admin</p>
-        <p class="stat-value">{{ countByRole('admin') }}</p>
-      </div>
       <div class="stat-card stat-card--emerald">
-        <p class="stat-label">Technician</p>
+        <p class="stat-label">ຊ່າງ</p>
         <p class="stat-value">{{ countByRole('technician') }}</p>
       </div>
       <div class="stat-card stat-card--sky">
-        <p class="stat-label">User</p>
+        <p class="stat-label">ລູກຄ້າ</p>
         <p class="stat-value">{{ countByRole('user') }}</p>
       </div>
     </div>
@@ -57,7 +53,7 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>ຊື່ ແລະ ນາມສະກຸນ</th>
+            <th>ຊື່</th>
             <th>ອີເມວ</th>
             <th>ເບີໂທ</th>
             <th>ສິດ</th>
@@ -102,13 +98,20 @@ const total = ref(0);
 const loading = ref(false);
 
 const countByRole = (role: string) =>
-  items.value.filter(u => u.role?.toLowerCase() === role).length;
+  items.value.filter(u => {
+    const r = u.role?.toLowerCase();
+    if (role === 'technician') {
+      return r === 'technician' || r === 'technicians';
+    }
+    return r === role;
+  }).length;
 
 const roleBadge = (role: string) => {
   const map: any = {
     admin: 'badge--purple',
     user: 'badge--blue',
     technician: 'badge--emerald',
+    technicians: 'badge--emerald',
   };
   return map[role?.toLowerCase()] ?? 'badge--gray';
 };
@@ -123,8 +126,12 @@ const loadData = async () => {
   try {
     const res = await axios.get('/users', { params: { page: 1, perPage: 1000 } });
     const data = res.data;
-    items.value = data.data ?? data ?? [];
-    total.value = data.total ?? items.value.length;
+    const rawUsers = data.data ?? data ?? [];
+    items.value = rawUsers.filter((u: any) => {
+      const r = u.role?.toLowerCase();
+      return r === 'user' || r === 'technician' || r === 'technicians';
+    });
+    total.value = items.value.length;
   } catch (e) {
     console.error(e);
   } finally {
@@ -153,4 +160,15 @@ onMounted(loadData);
 
 <style scoped>
 @import '../styles/report.css';
+
+.stats-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+  .stats-grid { grid-template-columns: 1fr; }
+}
 </style>

@@ -40,9 +40,11 @@
         <thead>
           <tr>
             <th>#</th>
+            <th>ໂພສ໌ໂດຍ</th>
             <th>ຊື່ວຽກ</th>
             <th>ລາຍລະອຽດ</th>
             <th>ປະເພດ</th>
+            <th>ສະຖານທີ່</th>
             <th>ສະຖານະ</th>
             <th>ວັນທີສ້າງ</th>
           </tr>
@@ -50,11 +52,13 @@
         <tbody>
           <tr v-for="(job, i) in items" :key="job.id">
             <td class="td-num">{{ i + 1 }}</td>
-            <td class="td-bold">{{ job.title || job.name || '-' }}</td>
-            <td class="td-desc">{{ job.description || '-' }}</td>
-            <td>{{ job.category?.nameLao || job.categoryId || '-' }}</td>
+            <td class="td-bold">{{ job.user?.fullName || 'ບໍ່ມີຂໍ້ມູນ' }}</td>
+            <td class="td-bold">{{ job.title || job.name || 'ບໍ່ມີຂໍ້ມູນ' }}</td>
+            <td class="td-desc">{{ job.description || 'ບໍ່ມີຂໍ້ມູນ' }}</td>
+            <td>{{ job.category?.nameLao || job.categoryId || 'ບໍ່ມີຂໍ້ມູນ' }}</td>
+            <td>{{ job.location || 'ບໍ່ມີຂໍ້ມູນ' }}</td>
             <td>
-              <span class="badge" :class="statusBadge(job.status)">{{ job.status || '-' }}</span>
+              <span class="badge" :class="statusBadge(job.status)">{{ job.status || 'ບໍ່ມີຂໍ້ມູນ' }}</span>
             </td>
             <td>{{ formatDate(job.createdAt) }}</td>
           </tr>
@@ -108,10 +112,10 @@ const loadData = async () => {
 const exportExcel = () => {
   const rows = items.value.map((j, i) => ({
     '#': i + 1,
-    'ຊື່ວຽກ': j.title || j.name || '-',
-    'ລາຍລະອຽດ': j.description || '-',
-    'ປະເພດ': j.category?.nameLao || j.categoryId || '-',
-    'ສະຖານະ': j.status || '-',
+    'ຊື່ວຽກ': j.title || j.name || 'ບໍ່ມີຂໍ້ມູນ',
+    'ລາຍລະອຽດ': j.description || 'ບໍ່ມີຂໍ້ມູນ',
+    'ປະເພດ': j.category?.nameLao || j.categoryId || 'ບໍ່ມີຂໍ້ມູນ',
+    'ສະຖານະ': j.status || 'ບໍ່ມີຂໍ້ມູນ',
     'ວັນທີສ້າງ': formatDate(j.createdAt),
   }));
   const ws = XLSX.utils.json_to_sheet(rows);

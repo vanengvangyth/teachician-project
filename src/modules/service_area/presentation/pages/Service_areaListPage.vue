@@ -174,9 +174,8 @@ onMounted(loadItems);
       <table v-if="items.length > 0" class="w-full text-sm rounded-lg">
         <thead class="bg-slate-100 text-slate-600">
           <tr>
-            <th class="px-6 py-3 text-left font-semibold">ຊື່</th>
-            <th class="px-6 py-3 text-left font-semibold">ຄຳອະທິບາຍ</th>
-            <th class="px-6 py-3 text-left font-semibold">ປະສົບການ</th>
+            <th class="px-6 py-3 text-left font-semibold">ລຳດັບ</th>
+            <th class="px-6 py-3 text-left font-semibold">ຊື່ຊ່າງ</th>
             <th class="px-6 py-3 text-left font-semibold">ແຂວງ</th>
             <th class="px-6 py-3 text-left font-semibold">ເມືອງ</th>
             <th class="px-6 py-3 text-left font-semibold">ບ້ານ</th>
@@ -185,28 +184,18 @@ onMounted(loadItems);
         </thead>
 
         <tbody class="divide-y">
-          <tr v-for="item in items" :key="item.id" class="hover:bg-slate-50 transition">
-            <!-- NAME -->
+          <tr v-for="(item, i) in items" :key="item.id" class="hover:bg-slate-50 transition">
+            <!-- NUMBER -->
             <td class="px-6 py-4">
-              <div class="font-semibold text-slate-800">
-                {{ item.technician?.user?.fullName || ('#' + item.id) }}
+              <div class="font-semibold text-slate-600">
+                {{ i + 1 }}
               </div>
             </td>
-
-            <!-- Description-->
             <td class="px-6 py-4">
-              <div class="font-semibold text-slate-800">
-                {{ item.technician?.descriptionLao || ('#' + item.id) }}
+              <div class="font-semibold text-slate-600">
+                {{ item.user?.fullName || ('#' + item.technicianId) }}
               </div>
             </td>
-
-            <!-- year-->
-            <td class="px-6 py-4">
-              <div class="font-semibold text-slate-800">
-                {{ item.technician?.yearsOfExperience || ('#' + item.id) }}
-              </div>
-            </td>
-
             <!-- province -->
             <td class="px-6 py-4">
               <div class="font-semibold text-slate-600">

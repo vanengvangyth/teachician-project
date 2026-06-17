@@ -9,7 +9,7 @@
         </div>
         <div>
           <h1 class="report-title">ລາຍງານສະຖານະການຢືນຢັນຕົວຕົນ</h1>
-          <p class="report-subtitle">ສະຖານະ Verified ຂອງ Technician ທັງໝົດ</p>
+          <p class="report-subtitle">ສະຖານະ Verified ຂອງ User ແລະ Technician ທັງໝົດ</p>
         </div>
       </div>
       <button @click="exportExcel" class="btn-export" :disabled="loading || items.length === 0">
@@ -42,9 +42,10 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>ຊື່ Technician</th>
+            <th>ຊື່</th>
             <th>ອີເມວ</th>
             <th>ເບີໂທ</th>
+            <th>ສິດ</th>
             <th>ຢືນຢັນຕົວຕົນ</th>
             <th>ສະຖານະ</th>
             <th>ວັນທີສ້າງ</th>
@@ -55,12 +56,17 @@
             <td class="td-num">{{ i + 1 }}</td>
             <td>
               <div class="user-cell">
-                <div class="avatar avatar--green">{{ tech.fullName?.charAt(0)?.toUpperCase() || 'T' }}</div>
+                <div class="avatar" :class="{ 'avatar--green': tech.role?.toLowerCase() !== 'user' }">
+                  {{ tech.fullName?.charAt(0)?.toUpperCase() || (tech.role?.toLowerCase() === 'user' ? 'U' : 'T') }}
+                </div>
                 <span class="td-bold">{{ tech.fullName || '-' }}</span>
               </div>
             </td>
             <td>{{ tech.email || '-' }}</td>
             <td>{{ tech.phone || '-' }}</td>
+            <td>
+              <span class="badge" :class="roleBadge(tech.role)">{{ tech.role }}</span>
+            </td>
             <td>
               <span class="badge" :class="tech.isVerified ? 'badge--emerald' : 'badge--amber'">
                 {{ tech.isVerified ? '✓ ຢືນຢັນແລ້ວ' : '⏳ ລໍຖ້າ' }}
@@ -96,6 +102,16 @@ const verifiedPct = computed(() => {
   return ((countVerified(true) / items.value.length) * 100).toFixed(1);
 });
 
+const roleBadge = (role: string) => {
+  const map: any = {
+    admin: 'badge--purple',
+    user: 'badge--blue',
+    technician: 'badge--emerald',
+    technicians: 'badge--emerald',
+  };
+  return map[role?.toLowerCase()] ?? 'badge--gray';
+};
+
 const formatDate = (d: string) => {
   if (!d) return '-';
   return new Date(d).toLocaleDateString('lo-LA', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -104,11 +120,14 @@ const formatDate = (d: string) => {
 const loadData = async () => {
   loading.value = true;
   try {
-    // ดึงเฉพาะ role technician จาก users API
-    const res = await axios.get('/users', { params: { page: 1, perPage: 1000, role: 'technician' } });
+    const res = await axios.get('/users', { params: { page: 1, perPage: 1000 } });
     const data = res.data;
-    items.value = data.data ?? data ?? [];
-    total.value = data.total ?? items.value.length;
+    const rawUsers = data.data ?? data ?? [];
+    items.value = rawUsers.filter((u: any) => {
+      const r = u.role?.toLowerCase();
+      return r === 'user' || r === 'technician' || r === 'technicians';
+    });
+    total.value = items.value.length;
   } catch (e) {
     console.error(e);
   } finally {
@@ -119,9 +138,10 @@ const loadData = async () => {
 const exportExcel = () => {
   const rows = items.value.map((t, i) => ({
     '#': i + 1,
-    'ຊື່ Technician': t.fullName || '-',
+    'ຊື່': t.fullName || '-',
     'ອີເມວ': t.email || '-',
     'ເບີໂທ': t.phone || '-',
+    'ສິດ': t.role || '-',
     'ຢືນຢັນຕົວຕົນ': t.isVerified ? 'ຢືນຢັນແລ້ວ' : 'ຍັງບໍ່ຢືນຢັນ',
     'ສະຖານະ': t.isActive ? 'ເປີດ' : 'ປິດ',
     'ວັນທີສ້າງ': formatDate(t.createdAt),

@@ -1,4 +1,5 @@
 import type { Techician } from '../../../techician/domain/entities/techician.entity';
+import type { User } from '../../../user/domain/entities/user.entity';
 
 export interface Service_area {
   id: number;
@@ -7,10 +8,12 @@ export interface Service_area {
   province: string;
   district: string;
   village?: string;
-
+  
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
+  
+  user?: User;
 }
 
 export interface PaginatedService_areas {
