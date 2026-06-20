@@ -138,6 +138,28 @@ const getAttachmentUrl = (attachments: any): string | undefined => {
   return attachments.fileUrl;
 };
 
+const translateStatus = (status: string) => {
+  const translations: Record<string, string> = {
+    open: 'ຍັງວ່າງ',
+    accepted: 'ຮັບແລ້ວ',
+    in_progress: 'ກຳລັງດຳເນີນການ',
+    completed: 'ສຳເລັດແລ້ວ',
+    cancelled: 'ຖືກຍົກເລີກ',
+  };
+  return translations[status?.toLowerCase()] ?? status ?? 'ບໍ່ລະບຸ';
+};
+
+const statusClass = (status: string) => {
+  const mapClasses: Record<string, string> = {
+    open: 'bg-blue-100 text-blue-800 border border-blue-200',
+    accepted: 'bg-indigo-100 text-indigo-800 border border-indigo-200',
+    in_progress: 'bg-amber-100 text-amber-800 border border-amber-200',
+    completed: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+    cancelled: 'bg-rose-100 text-rose-800 border border-rose-200',
+  };
+  return mapClasses[status?.toLowerCase()] ?? 'bg-slate-100 text-slate-600 border border-slate-200';
+};
+
 onMounted(loadItems);
 </script>
 
@@ -192,6 +214,7 @@ onMounted(loadItems);
             <th class="px-6 py-3 text-left font-semibold">ປະເພດ</th>
             <th class="px-6 py-3 text-left font-semibold">ວັນທີ່ສ້າງ</th>
             <th class="px-6 py-3 text-left font-semibold">ວັນທີ່ແກ້ໄຂ</th>
+            <th class="px-6 py-3 text-left font-semibold">ສະຖານະ</th>
             <th class="px-6 py-3 text-right font-semibold">Actions</th>
           </tr>
         </thead>
@@ -228,6 +251,12 @@ onMounted(loadItems);
 
             <td class="px-6 py-4 text-sm text-slate-500">
               {{ new Date(item.updatedAt).toLocaleString("en-GB") }}
+            </td>
+
+            <td class="px-6 py-4 text-sm">
+              <span class="px-2.5 py-1 rounded-full text-xs font-semibold inline-block" :class="statusClass(item.status)">
+                {{ translateStatus(item.status || 'open') }}
+              </span>
             </td>
 
             <td class="px-6 py-4 text-right">

@@ -53,9 +53,16 @@
         <div class="absolute -bottom-16 left-8 flex items-end gap-6">
           <!-- Profile Image container -->
           <div class="relative group">
-            <div class="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white bg-slate-100 shadow-md flex items-center justify-center">
+            <div @click="openImagePreview"
+              class="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white bg-slate-100 shadow-md flex items-center justify-center cursor-pointer transition hover:shadow-lg hover:scale-105 active:scale-95 duration-200 relative group/img">
               <img :src="getImageUrl(item.user?.profileImageUrl)" alt="Profile Image" class="w-full h-full object-cover"
                 @error="(e) => (e.target as HTMLImageElement).src = '/placeholder.png'" />
+              <!-- Hover overlay with preview icon -->
+              <div class="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.602 10.602zM10.5 7.5v6m3-3h-6" />
+                </svg>
+              </div>
             </div>
             <!-- Verification icon badge overlay -->
             <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full border-4 border-white flex items-center justify-center shadow-md"
@@ -212,6 +219,35 @@
         <div class="h-3 bg-slate-200 rounded w-1/4"></div>
       </div>
     </div>
+
+    <!-- IMAGE PREVIEW MODAL -->
+    <div v-if="isPreviewOpen && item" @click="closeImagePreview"
+      class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300">
+      <div class="relative max-w-3xl max-h-[85vh] overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-100 flex flex-col items-center animate-in fade-in zoom-in-95 duration-200" @click.stop>
+        <!-- Close button -->
+        <button @click="closeImagePreview" 
+          class="absolute top-4 right-4 p-2 bg-slate-950/60 hover:bg-slate-950/80 text-white rounded-full transition shadow-md z-10">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <!-- Image display -->
+        <img :src="getImageUrl(item.user?.profileImageUrl)" alt="Profile Image Preview" 
+          class="max-w-full max-h-[70vh] object-contain rounded-t-2xl" 
+          @error="(e) => (e.target as HTMLImageElement).src = '/placeholder.png'" />
+        <!-- Footer / Name -->
+        <div class="w-full py-4 px-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+          <span class="font-bold text-slate-800 text-base">{{ item.user?.fullName || "-" }}</span>
+          <a :href="getImageUrl(item.user?.profileImageUrl)" target="_blank"
+            class="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+            ເປີດໃນແທັບໃໝ່
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -241,6 +277,15 @@ const rejectUseCase = new RejectTechicianUseCase(repo);
 
 const item = ref<Techician | null>(null);
 const isActionLoading = ref(false);
+const isPreviewOpen = ref(false);
+
+const openImagePreview = () => {
+  isPreviewOpen.value = true;
+};
+
+const closeImagePreview = () => {
+  isPreviewOpen.value = false;
+};
 
 const userRepo = new UserRepositoryImpl();
 const getUserUseCase = new getOneUserUseCase(userRepo);

@@ -19,14 +19,16 @@
 
         <!-- Left Side: Basic Info (7 columns on large screens) -->
         <div class="lg:col-span-7 space-y-6 font-sans">
-          
+
           <!-- Title & Status -->
           <div class="space-y-3">
             <div class="flex flex-wrap items-center gap-3">
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm" :class="statusClass(job.status)">
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm"
+                :class="statusClass(job.status)">
                 {{ job.status || 'open' }}
               </span>
-              <span v-if="job.postedAgo" class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
+              <span v-if="job.postedAgo"
+                class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
                 ⏱️ {{ job.postedAgo }}
               </span>
             </div>
@@ -48,7 +50,7 @@
               <span class="text-xs text-slate-600 font-medium">ເວລາປະເມີນ</span>
               <span class="text-slate-800 text-lg font-bold mt-1">{{ job.estimatedDuration }} ຊົ່ວໂມງ</span>
             </div>
-            
+
             <div class="flex flex-col p-3 bg-slate-50 rounded-lg border border-slate-100">
               <span class="text-xs text-slate-600 font-medium">ວັນທີ່ສ້າງ</span>
               <span class="text-slate-600 text-base font-semibold mt-1">
@@ -72,8 +74,8 @@
           </div>
 
           <!-- Cancellation Section (Show if cancelled or has data) -->
-          <div v-if="job.status === 'cancelled' || job.cancellationReason || job.canelledByuserId" 
-               class="bg-red-50/50 rounded-xl p-4 border border-red-100/60 space-y-2">
+          <div v-if="job.status === 'cancelled' || job.cancellationReason || job.canelledByuserId"
+            class="bg-red-50/50 rounded-xl p-4 border border-red-100/60 space-y-2">
             <h3 class="text-base font-semibold text-red-800 flex items-center gap-1.5">
               🚫 ຂໍ້ມູນການຍົກເລີກ
             </h3>
@@ -89,39 +91,16 @@
             </div>
           </div>
 
-          <!-- Worker Information Section (If assigned) -->
-          <div v-if="job.workerId || job.worker" class="bg-indigo-50/40 rounded-xl p-4 border border-indigo-100/60 space-y-2">
-            <h3 class="text-base font-semibold text-indigo-800 flex items-center gap-1.5">
-              🔧 ຂໍ້ມູນຄົນງານທີ່ຮັບຜິດຊອບ
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
-                  {{ job.worker ? job.worker[0] : 'W' }}
-                </div>
-                <div>
-                  <span class="text-slate-600 block text-xs">ຊື່ຄົນງານ</span>
-                  <span class="text-indigo-950 font-bold text-base">{{ job.worker || '-' }}</span>
-                </div>
-              </div>
-              <div v-if="job.workerId" class="flex flex-col justify-center">
-                <span class="text-slate-600 text-xs">ລະຫັດຄົນງານ</span>
-                <span class="text-indigo-950 font-mono font-bold">#{{ job.workerId }}</span>
-              </div>
-            </div>
-          </div>
-
           <!-- Category Card -->
           <div v-if="job.category" class="bg-emerald-50/30 rounded-xl p-5 border border-emerald-100/60 space-y-4">
             <h3 class="text-lg font-bold text-emerald-800 flex items-center gap-2">
               🗂️ ຂໍ້ມູນປະເພດວຽກ
             </h3>
             <div class="flex flex-col sm:flex-row gap-4 items-start">
-              <div v-if="job.category.iconUrl" class="w-16 h-16 rounded-xl bg-white border border-emerald-100 flex items-center justify-center p-2 flex-shrink-0 shadow-sm">
-                <img :src="getImageUrl(job.category.iconUrl)" 
-                     alt="Category Icon" 
-                     class="w-full h-full object-contain"
-                     @error="(e: any) => { (e.target as HTMLImageElement).style.display='none'; }" />
+              <div v-if="job.category.iconUrl"
+                class="w-16 h-16 rounded-xl bg-white border border-emerald-100 flex items-center justify-center p-2 flex-shrink-0 shadow-sm">
+                <img :src="getImageUrl(job.category.iconUrl)" alt="Category Icon" class="w-full h-full object-contain"
+                  @error="(e: any) => { (e.target as HTMLImageElement).style.display = 'none'; }" />
               </div>
               <div class="space-y-3 flex-1 min-w-0">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -145,7 +124,7 @@
                     <p class="text-slate-600 text-sm leading-relaxed">{{ job.category.descriptionEng || '-' }}</p>
                   </div>
                 </div>
-                
+
                 <div class="text-xs text-slate-600 pt-1">
                   ລະຫັດປະເພດ: <span class="font-mono font-bold text-slate-600">#{{ job.category.id }}</span>
                 </div>
@@ -161,21 +140,20 @@
             <div class="flex flex-col sm:flex-row gap-4 items-start">
               <!-- Profile Avatar -->
               <div class="flex-shrink-0">
-                <img v-if="job.user.profileImageUrl" 
-                     :src="getImageUrl(job.user.profileImageUrl)" 
-                     alt="Profile" 
-                     class="w-16 h-16 rounded-full border border-blue-100 shadow-sm object-cover"
-                     @error="(e: any) => { (e.target as HTMLImageElement).style.display='none'; }" />
-                <div v-else class="w-16 h-16 rounded-full bg-blue-100 border border-blue-200 text-blue-700 flex items-center justify-center font-bold text-xl uppercase shadow-sm">
+                <img v-if="job.user.profileImageUrl" :src="getImageUrl(job.user.profileImageUrl)" alt="Profile"
+                  class="w-16 h-16 rounded-full border border-blue-100 shadow-sm object-cover"
+                  @error="(e: any) => { (e.target as HTMLImageElement).style.display = 'none'; }" />
+                <div v-else
+                  class="w-16 h-16 rounded-full bg-blue-100 border border-blue-200 text-blue-700 flex items-center justify-center font-bold text-xl uppercase shadow-sm">
                   {{ job.user.fullName ? job.user.fullName[0] : 'U' }}
                 </div>
               </div>
-              
+
               <!-- User Details Grid -->
               <div class="flex-1 min-w-0 space-y-3">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
                   <div>
-                    <span class="text-xs text-slate-600 block font-medium">ຊື່ຜູ້ໃຊ້</span>
+                    <span class="text-xs text-slate-600 block font-medium">ຊື່ລູກຄ້າ</span>
                     <span class="text-slate-800 font-bold">{{ job.user.fullName || '-' }}</span>
                   </div>
                   <div>
@@ -192,7 +170,8 @@
                       <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
                         {{ job.user.role || '-' }}
                       </span>
-                      <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                      <span
+                        class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
                         {{ job.user.permission || '-' }}
                       </span>
                     </div>
@@ -206,11 +185,78 @@
             </div>
           </div>
 
+          <!-- Worker Information Section (If assigned) -->
+          <div v-if="job.workerId || parsedWorker"
+            class="bg-indigo-50/40 rounded-xl p-5 border border-indigo-100/60 space-y-4 font-sans">
+            <h3
+              class="text-base font-bold text-indigo-800 flex items-center gap-1.5 border-l-4 border-indigo-500 pl-2.5">
+              🔧 ຂໍ້ມູນຄົນງານທີ່ຮັບວຽກ
+            </h3>
+
+            <div v-if="parsedWorker" class="flex flex-col sm:flex-row gap-4 items-start">
+              <!-- Avatar -->
+              <div class="flex-shrink-0">
+                <img v-if="parsedWorker.profileImageUrl" :src="getImageUrl(parsedWorker.profileImageUrl)"
+                  alt="Worker Profile"
+                  class="w-16 h-16 rounded-full border border-indigo-100 shadow-sm object-cover cursor-pointer hover:scale-105 transition"
+                  @click="openAttachmentPreview(getImageUrl(parsedWorker.profileImageUrl), 'image/png', parsedWorker.fullName)"
+                  @error="(e: any) => { (e.target as HTMLImageElement).style.display = 'none'; }" />
+                <div v-else
+                  class="w-16 h-16 rounded-full bg-indigo-100 border border-indigo-200 text-indigo-700 flex items-center justify-center font-bold text-xl uppercase shadow-sm">
+                  {{ parsedWorker.fullName ? parsedWorker.fullName[0] : 'W' }}
+                </div>
+              </div>
+
+              <!-- Details Grid -->
+              <div class="flex-1 min-w-0 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                  <div>
+                    <span class="text-xs text-slate-500 block font-medium">ຊື່ຄົນງານ</span>
+                    <span class="text-slate-800 font-bold text-base">{{ parsedWorker.fullName || '-' }}</span>
+                  </div>
+                  <div v-if="parsedWorker.email">
+                    <span class="text-xs text-slate-500 block font-medium">ອີເມວ</span>
+                    <span class="text-slate-600 break-all text-sm font-medium">{{ parsedWorker.email }}</span>
+                  </div>
+                  <div v-if="parsedWorker.phone">
+                    <span class="text-xs text-slate-500 block font-medium">ເບີໂທລະສັບ</span>
+                    <span class="text-slate-700 font-semibold text-sm">{{ parsedWorker.phone }}</span>
+                  </div>
+                  <div v-if="parsedWorker.role">
+                    <span class="text-xs text-slate-500 block font-medium">ບົດບາດ (Role)</span>
+                    <span
+                      class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase inline-block mt-0.5">
+                      {{ parsedWorker.role }}
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  class="text-xs text-slate-400 pt-2 border-t border-indigo-100/45 flex justify-between items-center">
+                  <span>ລະຫັດຄົນງານ: <span class="font-mono font-bold text-slate-600">#{{ job.workerId ||
+                    parsedWorker.id || '-' }}</span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fallback if only workerId is present but parsedWorker is null -->
+            <div v-else class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+                W
+              </div>
+              <div>
+                <span class="text-slate-500 block text-xs">ລະຫັດຄົນງານ</span>
+                <span class="text-indigo-950 font-mono font-bold text-base">#{{ job.workerId }}</span>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Right Side: Location, Map & Attachments (5 columns on large screens) -->
         <div class="lg:col-span-5 space-y-6 font-sans">
-          
+
           <!-- Location Info -->
           <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
             <h3 class="text-base font-bold text-slate-800 flex items-center gap-1">📍 ສະຖານທີ່</h3>
@@ -239,20 +285,31 @@
             <h3 class="text-base font-bold text-slate-800 flex items-center gap-1.5">
               📎 ໄຟລ໌ຄັດຕິດ (Attachments)
             </h3>
-            
+
             <!-- Handle Array -->
             <div v-if="Array.isArray(job.attachments)" class="space-y-3">
-              <div v-for="att in job.attachments" :key="att.attachmentId" 
-                   class="border border-slate-200/60 rounded-xl p-3 bg-white flex items-center gap-3 shadow-sm hover:shadow transition duration-200">
-                
+              <div v-for="att in job.attachments" :key="att.attachmentId"
+                class="border border-slate-200/60 rounded-xl p-3 bg-white flex items-center gap-3 shadow-sm hover:shadow transition duration-200">
+
                 <!-- Image Preview -->
-                <div v-if="isImage(att.fileUrl, att.fileType)" class="w-14 h-14 rounded-lg overflow-hidden border border-slate-100 bg-slate-50 flex-shrink-0 flex items-center justify-center">
-                  <img :src="att.fileUrl" class="w-full h-full object-cover hover:scale-110 transition duration-300 cursor-zoom-in" />
+                <div v-if="isImage(att.fileUrl, att.fileType)"
+                  @click="openAttachmentPreview(att.fileUrl, att.fileType, getFileName(att.fileUrl))"
+                  class="w-14 h-14 rounded-lg overflow-hidden border border-slate-100 bg-slate-50 flex-shrink-0 flex items-center justify-center cursor-pointer relative group/img">
+                  <img :src="att.fileUrl" class="w-full h-full object-cover hover:scale-110 transition duration-300" />
+                  <div
+                    class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
+                    🔍
+                  </div>
                 </div>
-                
+
                 <!-- File Icon -->
-                <div v-else class="w-14 h-14 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-500 text-2xl flex-shrink-0">
+                <div v-else @click="openAttachmentPreview(att.fileUrl, att.fileType, getFileName(att.fileUrl))"
+                  class="w-14 h-14 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-500 text-2xl flex-shrink-0 cursor-pointer hover:bg-sky-100 transition relative group/file">
                   📄
+                  <div
+                    class="absolute inset-0 bg-black/10 opacity-0 group-hover/file:opacity-100 transition-opacity flex items-center justify-center text-white text-xs rounded-lg">
+                    👁️
+                  </div>
                 </div>
 
                 <div class="min-w-0 flex-1">
@@ -261,11 +318,17 @@
                     {{ getFileName(att.fileUrl) }}
                   </p>
                   <div class="flex items-center gap-2 mt-1">
-                    <span v-if="att.fileType" class="text-[10px] text-slate-600 font-medium border border-slate-200 px-1.5 py-0.25 rounded">
+                    <span v-if="att.fileType"
+                      class="text-[10px] text-slate-600 font-medium border border-slate-200 px-1.5 py-0.25 rounded">
                       {{ att.fileType }}
                     </span>
-                    <a :href="att.fileUrl" target="_blank" class="text-xs font-bold text-sky-600 hover:text-sky-700 hover:underline inline-flex items-center gap-0.5">
-                      ເປີດໄຟລ໌ ↗
+                    <button @click="openAttachmentPreview(att.fileUrl, att.fileType, getFileName(att.fileUrl))"
+                      class="text-xs font-bold text-sky-600 hover:text-sky-700 hover:underline inline-flex items-center gap-0.5 cursor-pointer">
+                      ເບິ່ງຕົວຢ່າງ 👁️
+                    </button>
+                    <a :href="att.fileUrl" target="_blank"
+                      class="text-[10px] font-semibold text-slate-400 hover:text-slate-600 flex items-center gap-0.5 ml-1">
+                      ເປີດແທັບໃໝ່ ↗
                     </a>
                   </div>
                 </div>
@@ -273,15 +336,29 @@
             </div>
 
             <!-- Handle Single Object -->
-            <div v-else class="border border-slate-200/60 rounded-xl p-3 bg-white flex items-center gap-3 shadow-sm hover:shadow transition duration-200">
+            <div v-else
+              class="border border-slate-200/60 rounded-xl p-3 bg-white flex items-center gap-3 shadow-sm hover:shadow transition duration-200">
               <!-- Image Preview -->
-              <div v-if="isImage(job.attachments.fileUrl, job.attachments.fileType)" class="w-14 h-14 rounded-lg overflow-hidden border border-slate-100 bg-slate-50 flex-shrink-0 flex items-center justify-center">
-                <img :src="job.attachments.fileUrl" class="w-full h-full object-cover hover:scale-110 transition duration-300 cursor-zoom-in" />
+              <div v-if="isImage(job.attachments.fileUrl, job.attachments.fileType)"
+                @click="openAttachmentPreview(job.attachments.fileUrl, job.attachments.fileType, getFileName(job.attachments.fileUrl))"
+                class="w-14 h-14 rounded-lg overflow-hidden border border-slate-100 bg-slate-50 flex-shrink-0 flex items-center justify-center cursor-pointer relative group/img">
+                <img :src="job.attachments.fileUrl"
+                  class="w-full h-full object-cover hover:scale-110 transition duration-300" />
+                <div
+                  class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
+                  🔍
+                </div>
               </div>
-              
+
               <!-- File Icon -->
-              <div v-else class="w-14 h-14 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-500 text-2xl flex-shrink-0">
+              <div v-else
+                @click="openAttachmentPreview(job.attachments.fileUrl, job.attachments.fileType, getFileName(job.attachments.fileUrl))"
+                class="w-14 h-14 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-500 text-2xl flex-shrink-0 cursor-pointer hover:bg-sky-100 transition relative group/file">
                 📄
+                <div
+                  class="absolute inset-0 bg-black/10 opacity-0 group-hover/file:opacity-100 transition-opacity flex items-center justify-center text-white text-xs rounded-lg">
+                  👁️
+                </div>
               </div>
 
               <div class="min-w-0 flex-1">
@@ -290,11 +367,18 @@
                   {{ getFileName(job.attachments.fileUrl) }}
                 </p>
                 <div class="flex items-center gap-2 mt-1">
-                  <span v-if="job.attachments.fileType" class="text-[10px] text-slate-600 font-medium border border-slate-200 px-1.5 py-0.25 rounded">
+                  <span v-if="job.attachments.fileType"
+                    class="text-[10px] text-slate-600 font-medium border border-slate-200 px-1.5 py-0.25 rounded">
                     {{ job.attachments.fileType }}
                   </span>
-                  <a :href="job.attachments.fileUrl" target="_blank" class="text-xs font-bold text-sky-600 hover:text-sky-700 hover:underline inline-flex items-center gap-0.5">
-                    ເປີດໄຟລ໌ ↗
+                  <button
+                    @click="openAttachmentPreview(job.attachments.fileUrl, job.attachments.fileType, getFileName(job.attachments.fileUrl))"
+                    class="text-xs font-bold text-sky-600 hover:text-sky-700 hover:underline inline-flex items-center gap-0.5 cursor-pointer">
+                    ເບິ່ງຕົວຢ່າງ 👁️
+                  </button>
+                  <a :href="job.attachments.fileUrl" target="_blank"
+                    class="text-[10px] font-semibold text-slate-400 hover:text-slate-600 flex items-center gap-0.5 ml-1">
+                    ເປີດແທັບໃໝ່ ↗
                   </a>
                 </div>
               </div>
@@ -305,11 +389,75 @@
 
       </div>
     </div>
+
+    <!-- ATTACHMENT PREVIEW MODAL -->
+    <div v-if="isPreviewOpen" @click="closeAttachmentPreview"
+      class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300">
+      <div
+        class="relative w-full max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-100 flex flex-col animate-in fade-in zoom-in-95 duration-200"
+        @click.stop>
+        <!-- Header -->
+        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 font-sans">
+          <span class="font-bold text-slate-800 text-base truncate max-w-[80%]">{{ previewName || "ເບິ່ງຕົວຢ່າງໄຟລ໌"
+            }}</span>
+          <button @click="closeAttachmentPreview"
+            class="p-1.5 hover:bg-slate-200 text-slate-500 rounded-lg transition cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+              stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Content Area -->
+        <div
+          class="flex-1 overflow-y-auto p-6 bg-slate-100 flex items-center justify-center min-h-[40vh] max-h-[60vh] font-sans">
+          <!-- Image -->
+          <img v-if="isImage(previewUrl, previewType)" :src="previewUrl" alt="Attachment Preview"
+            class="max-w-full max-h-[55vh] object-contain rounded-lg shadow-sm" />
+
+          <!-- PDF -->
+          <iframe v-else-if="previewType.toLowerCase().includes('pdf') || previewUrl.toLowerCase().endsWith('.pdf')"
+            :src="previewUrl" class="w-full h-[55vh] rounded-lg shadow-sm bg-white" border="0">
+          </iframe>
+
+          <!-- Other files -->
+          <div v-else
+            class="text-center py-10 bg-white rounded-xl p-8 border border-slate-200 shadow-sm max-w-md w-full">
+            <div class="text-5xl mb-4">📄</div>
+            <h4 class="font-bold text-slate-800 text-lg mb-2">ບໍ່ສາມາດສະແດງຕົວຢ່າງໄຟລ໌ນີ້ໄດ້</h4>
+            <p class="text-sm text-slate-500 mb-6 font-medium">ໄຟລ໌ປະເພດນີ້ບໍ່ຮອງຮັບການເປີດເບິ່ງຕົວຢ່າງໂດຍກົງ</p>
+            <div class="flex gap-3 justify-center">
+              <a :href="previewUrl" download
+                class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold rounded-xl transition shadow-md shadow-sky-200 font-bold">
+                ດາວໂຫຼດໄຟລ໌
+              </a>
+              <a :href="previewUrl" target="_blank"
+                class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition font-bold">
+                ເປີດໃນແທັບໃໝ່ ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer / Action bar -->
+        <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 font-sans">
+          <a :href="previewUrl" target="_blank"
+            class="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl text-sm font-bold transition flex items-center gap-1.5">
+            ເປີດໃນແທັບໃໝ່ ↗
+          </a>
+          <a :href="previewUrl" download
+            class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-sm font-bold shadow-md shadow-sky-200 transition flex items-center gap-1.5">
+            ດາວໂຫຼດ
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { JobRepositoryImpl } from "../../infrastructure/repositories/job.repository.impl";
 import { GetOneJobUseCase } from "../../application/use-cases/get-one-jobs.usecase";
@@ -344,6 +492,40 @@ const isLoading = ref(true);
 const job = ref<any>(null);
 const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
+
+const isPreviewOpen = ref(false);
+const previewUrl = ref("");
+const previewType = ref("");
+const previewName = ref("");
+
+const parsedWorker = computed(() => {
+  if (!job.value) return null;
+  const workerData = job.value.worker;
+  if (!workerData) return null;
+
+  if (typeof workerData === "string") {
+    try {
+      return JSON.parse(workerData);
+    } catch (e) {
+      return { fullName: workerData };
+    }
+  }
+  return workerData;
+});
+
+const openAttachmentPreview = (url: string, type: string | undefined, name: string) => {
+  previewUrl.value = url;
+  previewType.value = type || "";
+  previewName.value = name;
+  isPreviewOpen.value = true;
+};
+
+const closeAttachmentPreview = () => {
+  isPreviewOpen.value = false;
+  previewUrl.value = "";
+  previewType.value = "";
+  previewName.value = "";
+};
 
 const goBack = () => {
   router.push("/job");
@@ -436,4 +618,3 @@ const initMap = () => {
 
 onMounted(loadJob);
 </script>
-

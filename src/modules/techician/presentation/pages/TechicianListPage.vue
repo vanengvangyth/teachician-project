@@ -88,8 +88,6 @@ async function loadItems() {
         : undefined,
     }));
 
-    console.log("Loaded techicians:", items.value);
-
     totalItems.value = result.total;
   } catch (error) {
     console.error(error);
