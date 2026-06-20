@@ -1,75 +1,117 @@
 <template>
-  <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-md">
+  <div class="bg-gradient-to-br from-white to-slate-50/50 border border-slate-100 p-6 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300">
     <!-- Chart Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-      <div>
-        <h3 class="text-base font-semibold text-slate-800 font-sans">ແນວໂນ້ມ ແລະ ສະຖິຕິ</h3>
-        <p class="text-xs text-slate-400 mt-1">ສະແດງການເຕີບໂຕ ແລະ ການເຄື່ອນໄຫວແຕ່ລະເດືອນ</p>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <div class="p-1.5 bg-slate-100 rounded-lg text-slate-600">
+            <TrendingUp class="w-4 h-4" />
+          </div>
+          <h3 class="text-base font-semibold text-slate-800 font-sans">ແນວໂນ້ມ ແລະ ສະຖິຕິ</h3>
+        </div>
+        <p class="text-xs text-slate-400">{{ periodDescriptions }}</p>
       </div>
 
-      <!-- Metric Toggles -->
-      <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg self-start">
-        <button
-          v-for="metric in metrics"
-          :key="metric.id"
-          @click="activeMetricId = metric.id"
-          class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 cursor-pointer animate-none text-slate-500 hover:text-slate-800"
-          :class="
-            activeMetricId === metric.id
-              ? 'bg-white text-slate-800 shadow-sm font-semibold'
-              : ''
-          "
+      <!-- Quick Metrics Overview & Toggle -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Period Selector (Week / Month / Year) -->
+        <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl">
+          <button
+            v-for="period in periods"
+            :key="period.id"
+            @click="activePeriod = period.id"
+            class="px-2.5 py-1 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer"
+            :class="
+              activePeriod === period.id
+                ? 'bg-white text-slate-800 shadow-xs'
+                : 'text-slate-500 hover:text-slate-800'
+            "
+          >
+            {{ period.label }}
+          </button>
+        </div>
+
+        <!-- Growth Badge for the latest period -->
+        <div 
+          v-if="latestGrowth !== undefined" 
+          class="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-xl font-semibold border transition-all duration-300"
+          :class="latestGrowth >= 0 ? 'bg-emerald-50/50 border-emerald-100/80 text-emerald-600' : 'bg-rose-50/50 border-rose-100/80 text-rose-600'"
         >
-          <span class="flex items-center gap-1">
-            <span
-              class="w-2 h-2 rounded-full"
-              :style="{ backgroundColor: metric.color }"
-            ></span>
-            {{ metric.label }}
-          </span>
-        </button>
+          <ArrowUpRight v-if="latestGrowth >= 0" class="w-3.5 h-3.5" />
+          <ArrowDownRight v-else class="w-3.5 h-3.5" />
+          <span>{{ latestGrowth >= 0 ? '+' : '-' }}{{ Math.abs(latestGrowth) }}% {{ periodGrowthLabels }}</span>
+        </div>
+
+        <!-- Metric Toggles -->
+        <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl">
+          <button
+            v-for="metric in metrics"
+            :key="metric.id"
+            @click="activeMetricId = metric.id"
+            class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 cursor-pointer text-slate-500 hover:text-slate-800"
+            :class="
+              activeMetricId === metric.id
+                ? 'bg-white text-slate-800 shadow-xs font-semibold'
+                : ''
+            "
+          >
+            <component 
+              :is="metric.icon" 
+              class="w-3.5 h-3.5" 
+              :style="{ color: activeMetricId === metric.id ? metric.color : 'inherit' }"
+            />
+            <span>{{ metric.label }}</span>
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Chart Container -->
-    <div class="relative w-full h-[220px]" ref="chartContainer" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave">
+    <div class="relative w-full h-[260px]" ref="chartContainer" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave">
       <!-- Grid, Axis and Curves -->
       <svg
         class="w-full h-full overflow-visible"
         :viewBox="`0 0 ${width} ${height}`"
         preserveAspectRatio="none"
       >
-        <!-- Gradients Definitions -->
+        <!-- Gradients and Filters Definitions -->
         <defs>
           <linearGradient :id="`areaGradient-${activeMetric.id}`" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" :stop-color="activeMetric.color" stop-opacity="0.25" />
+            <stop offset="0%" :stop-color="activeMetric.color" stop-opacity="0.22" />
             <stop offset="100%" :stop-color="activeMetric.color" stop-opacity="0.00" />
           </linearGradient>
+          
+          <!-- Drop Shadow filter for premium glowing stroke -->
+          <filter :id="`glow-${activeMetric.id}`" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="4" stdDeviation="5" :flood-color="activeMetric.color" flood-opacity="0.22" />
+          </filter>
         </defs>
 
-        <!-- Y Axis Gridlines -->
+        <!-- Y Axis Gridlines (dashed and subtle) -->
         <line
           v-for="lineVal in gridLines"
           :key="lineVal"
-          x1="30"
+          x1="40"
           :y1="getY(lineVal)"
-          :x2="width - 10"
+          :x2="width - 15"
           :y2="getY(lineVal)"
           stroke="#E2E8F0"
+          stroke-opacity="0.7"
           stroke-width="1"
-          stroke-dasharray="4 4"
+          stroke-dasharray="6 6"
         />
 
-        <!-- Hover Guideline -->
+        <!-- Hover Guideline with gradient vertical line -->
         <line
           v-if="hoveredPoint"
           :x1="hoveredPoint.x"
-          y1="10"
+          y1="15"
           :x2="hoveredPoint.x"
-          :y2="height - 25"
+          :y2="height - 30"
           :stroke="activeMetric.color"
           stroke-width="1.5"
           stroke-dasharray="3 3"
+          stroke-opacity="0.8"
           class="transition-all duration-150"
         />
 
@@ -80,7 +122,7 @@
           class="transition-all duration-500 ease-out"
         />
 
-        <!-- Main Trend Line -->
+        <!-- Main Trend Line with drop shadow glow -->
         <path
           :d="bezierPath"
           fill="none"
@@ -88,19 +130,20 @@
           stroke-width="3"
           stroke-linecap="round"
           stroke-linejoin="round"
+          :filter="`url(#glow-${activeMetric.id})`"
           class="transition-all duration-500 ease-out"
         />
 
-        <!-- Data Points (Always visible small dots) -->
+        <!-- Subtle static data points -->
         <circle
           v-for="(point, idx) in points"
           :key="idx"
           :cx="point.x"
           :cy="point.y"
-          r="4"
+          r="3"
           fill="#FFFFFF"
           :stroke="activeMetric.color"
-          stroke-width="2"
+          stroke-width="2.2"
           class="transition-all duration-300"
         />
 
@@ -109,9 +152,9 @@
           <circle
             :cx="hoveredPoint.x"
             :cy="hoveredPoint.y"
-            r="8"
+            r="9"
             :fill="activeMetric.color"
-            fill-opacity="0.3"
+            fill-opacity="0.25"
           />
           <circle
             :cx="hoveredPoint.x"
@@ -119,7 +162,7 @@
             r="4.5"
             fill="#FFFFFF"
             :stroke="activeMetric.color"
-            stroke-width="3.5"
+            stroke-width="3"
           />
         </g>
 
@@ -128,10 +171,10 @@
           v-for="(point, idx) in points"
           :key="`lbl-${idx}`"
           :x="point.x"
-          :y="height - 5"
+          :y="height - 8"
           text-anchor="middle"
-          fill="#94A3B8"
-          font-size="10"
+          fill="#64748B"
+          font-size="10.5"
           class="font-sans font-medium pointer-events-none select-none"
         >
           {{ point.label }}
@@ -141,35 +184,35 @@
         <text
           v-for="lineVal in gridLines"
           :key="`ylbl-${lineVal}`"
-          x="5"
-          :y="getY(lineVal) + 3"
+          x="8"
+          :y="getY(lineVal) + 3.5"
           fill="#94A3B8"
           font-size="9"
-          class="font-sans font-medium pointer-events-none select-none"
+          class="font-sans font-semibold pointer-events-none select-none"
         >
           {{ formatYVal(lineVal) }}
         </text>
       </svg>
 
-      <!-- Float Tooltip Card -->
+      <!-- Float Tooltip Card (Glassmorphism design) -->
       <div
         v-if="hoveredPoint"
-        class="absolute z-10 bg-slate-900 text-white rounded-lg px-3 py-2 shadow-lg border border-slate-800 text-xs transition-all duration-150 ease-out pointer-events-none font-sans"
+        class="absolute z-10 bg-slate-900/90 backdrop-blur-md text-white rounded-xl px-3.5 py-2.5 shadow-xl border border-slate-700/50 text-xs transition-all duration-150 ease-out pointer-events-none font-sans min-w-[110px]"
         :style="{
           left: `${tooltipX}px`,
           top: `${tooltipY}px`,
           transform: 'translate(-50%, -100%)',
-          marginTop: '-12px'
+          marginTop: '-14px'
         }"
       >
-        <div class="text-slate-400 font-medium mb-0.5">{{ hoveredPoint.label }}</div>
-        <div class="flex items-center gap-2">
+        <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1">{{ hoveredPoint.label }}</div>
+        <div class="flex items-center justify-between gap-3">
           <span class="font-bold text-sm text-white">
             {{ activeMetric.format ? activeMetric.format(hoveredPoint.value) : hoveredPoint.value }}
           </span>
           <span
             v-if="hoveredPoint.growth !== undefined"
-            class="text-[10px] px-1 rounded font-semibold"
+            class="text-[9px] px-1.5 py-0.5 rounded font-bold"
             :class="hoveredPoint.growth >= 0 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'"
           >
             {{ hoveredPoint.growth >= 0 ? '+' : '' }}{{ hoveredPoint.growth }}%
@@ -181,7 +224,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { Briefcase, Users, Wrench, ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-vue-next';
 
 interface MetricProps {
   usersCount?: number;
@@ -197,66 +241,166 @@ const props = withDefaults(defineProps<MetricProps>(), {
 
 // Dimensions of SVG view box
 const width = 600;
-const height = 220;
+const height = 260;
 
 const chartContainer = ref<HTMLElement | null>(null);
 const hoveredIndex = ref<number | null>(null);
 const tooltipX = ref(0);
 const tooltipY = ref(0);
 const activeMetricId = ref('jobs');
+const activePeriod = ref('month'); // 'week' | 'month' | 'year'
 
-// Color palettes for different metrics
-const metrics = computed(() => [
-  {
-    id: 'jobs',
-    label: 'ວຽກງານ',
-    color: '#10B981', // Emerald
-    trend: [
-      { month: 'ທັນວາ', base: 0.35, growth: 5 },
-      { month: 'ມັງກອນ', base: 0.50, growth: 12 },
-      { month: 'ກຸມພາ', base: 0.42, growth: -8 },
-      { month: 'ມີນາ', base: 0.65, growth: 22 },
-      { month: 'ເມສາ', base: 0.78, growth: 15 },
-      { month: 'ພຶດສະພາ', base: 1.00, growth: 18 }
-    ],
-    total: props.jobsCount || 42,
-    format: (v: number) => `${v} ວຽກ`
-  },
-  {
-    id: 'users',
-    label: 'ຜູ້ໃຊ້',
-    color: '#6366F1', // Indigo
-    trend: [
-      { month: 'ທັນວາ', base: 0.40, growth: 8 },
-      { month: 'ມັງກອນ', base: 0.52, growth: 10 },
-      { month: 'ກຸມພາ', base: 0.62, growth: 14 },
-      { month: 'ມີນາ', base: 0.70, growth: 8 },
-      { month: 'ເມສາ', base: 0.85, growth: 15 },
-      { month: 'ພຶດສະພາ', base: 1.00, growth: 12 }
-    ],
-    total: props.usersCount || 128,
-    format: (v: number) => `${v} ຄົນ`
-  },
-  {
-    id: 'techs',
-    label: 'ຊ່າງ',
-    color: '#F59E0B', // Amber
-    trend: [
-      { month: 'ທັນວາ', base: 0.30, growth: 4 },
-      { month: 'ມັງກອນ', base: 0.45, growth: 15 },
-      { month: 'ກຸມພາ', base: 0.55, growth: 12 },
-      { month: 'ມີນາ', base: 0.60, growth: 5 },
-      { month: 'ເມສາ', base: 0.80, growth: 25 },
-      { month: 'ພຶດສະພາ', base: 1.00, growth: 10 }
-    ],
-    total: props.techsCount || 24,
-    format: (v: number) => `${v} ທ່ານ`
-  }
-]);
+const periods = [
+  { id: 'week', label: 'ອາທິດ' },
+  { id: 'month', label: 'ເດືອນ' },
+  { id: 'year', label: 'ປີ' }
+];
+
+const periodDescriptions = computed(() => {
+  if (activePeriod.value === 'week') return 'ສະແດງການເຕີບໂຕ ແລະ ການເຄື່ອນໄຫວແຕ່ລະວັນໃນອາທິດ';
+  if (activePeriod.value === 'year') return 'ສະແດງການເຕີບໂຕ ແລະ ການເຄື່ອນໄຫວແຕ່ລະປີ';
+  return 'ສະແດງການເຕີບໂຕ ແລະ ການເຄື່ອນໄຫວແຕ່ລະເດືອນ';
+});
+
+const periodGrowthLabels = computed(() => {
+  if (activePeriod.value === 'week') return 'ອາທິດນີ້';
+  if (activePeriod.value === 'year') return 'ປີນີ້';
+  return 'ເດືອນນີ້';
+});
+
+// Reset hoveredIndex when activeMetricId or activePeriod changes to prevent UI misalignment
+watch([activeMetricId, activePeriod], () => {
+  hoveredIndex.value = null;
+});
+
+// Color palettes and base trends for different metrics and periods
+const metrics = computed(() => {
+  const data = {
+    jobs: {
+      week: [
+        { label: 'ຈັນ', base: 0.40, growth: 10 },
+        { label: 'ອັງຄານ', base: 0.55, growth: 15 },
+        { label: 'ພຸດ', base: 0.38, growth: -12 },
+        { label: 'ພະຫັດ', base: 0.70, growth: 25 },
+        { label: 'ສຸກ', base: 0.85, growth: 18 },
+        { label: 'ເສົາ', base: 0.90, growth: 8 },
+        { label: 'ອາທິດ', base: 1.00, growth: 5 }
+      ],
+      month: [
+        { label: 'ທັນວາ', base: 0.35, growth: 5 },
+        { label: 'ມັງກອນ', base: 0.50, growth: 12 },
+        { label: 'ກຸມພາ', base: 0.42, growth: -8 },
+        { label: 'ມີນາ', base: 0.65, growth: 22 },
+        { label: 'ເມສາ', base: 0.78, growth: 15 },
+        { label: 'ພຶດສະພາ', base: 1.00, growth: 18 }
+      ],
+      year: [
+        { label: '2021', base: 0.30, growth: 8 },
+        { label: '2022', base: 0.48, growth: 20 },
+        { label: '2023', base: 0.60, growth: 12 },
+        { label: '2024', base: 0.75, growth: 15 },
+        { label: '2025', base: 0.90, growth: 10 },
+        { label: '2026', base: 1.00, growth: 12 }
+      ]
+    },
+    users: {
+      week: [
+        { label: 'ຈັນ', base: 0.50, growth: 5 },
+        { label: 'ອັງຄານ', base: 0.60, growth: 8 },
+        { label: 'ພຸດ', base: 0.65, growth: 4 },
+        { label: 'ພະຫັດ', base: 0.72, growth: 10 },
+        { label: 'ສຸກ', base: 0.80, growth: 8 },
+        { label: 'ເສົາ', base: 0.92, growth: 12 },
+        { label: 'ອາທິດ', base: 1.00, growth: 6 }
+      ],
+      month: [
+        { label: 'ທັນວາ', base: 0.40, growth: 8 },
+        { label: 'ມັງກອນ', base: 0.52, growth: 10 },
+        { label: 'ກຸມພາ', base: 0.62, growth: 14 },
+        { label: 'ມີນາ', base: 0.70, growth: 8 },
+        { label: 'ເມສາ', base: 0.85, growth: 15 },
+        { label: 'ພຶດສະພາ', base: 1.00, growth: 12 }
+      ],
+      year: [
+        { label: '2021', base: 0.35, growth: 15 },
+        { label: '2022', base: 0.50, growth: 18 },
+        { label: '2023', base: 0.68, growth: 22 },
+        { label: '2024', base: 0.80, growth: 12 },
+        { label: '2025', base: 0.92, growth: 10 },
+        { label: '2026', base: 1.00, growth: 8 }
+      ]
+    },
+    techs: {
+      week: [
+        { label: 'ຈັນ', base: 0.30, growth: 2 },
+        { label: 'ອັງຄານ', base: 0.42, growth: 8 },
+        { label: 'ພຸດ', base: 0.55, growth: 10 },
+        { label: 'ພະຫັດ', base: 0.50, growth: -5 },
+        { label: 'ສຸກ', base: 0.75, growth: 20 },
+        { label: 'ເສົາ', base: 0.88, growth: 12 },
+        { label: 'ອາທິດ', base: 1.00, growth: 8 }
+      ],
+      month: [
+        { label: 'ທັນວາ', base: 0.30, growth: 4 },
+        { label: 'ມັງກອນ', base: 0.45, growth: 15 },
+        { label: 'ກຸມພາ', base: 0.55, growth: 12 },
+        { label: 'ມີນາ', base: 0.60, growth: 5 },
+        { label: 'ເມສາ', base: 0.80, growth: 25 },
+        { label: 'ພຶດສະພາ', base: 1.00, growth: 10 }
+      ],
+      year: [
+        { label: '2021', base: 0.25, growth: 10 },
+        { label: '2022', base: 0.40, growth: 15 },
+        { label: '2023', base: 0.58, growth: 20 },
+        { label: '2024', base: 0.70, growth: 12 },
+        { label: '2025', base: 0.88, growth: 18 },
+        { label: '2026', base: 1.00, growth: 10 }
+      ]
+    }
+  };
+
+  const periodKey = activePeriod.value as 'week' | 'month' | 'year';
+
+  return [
+    {
+      id: 'jobs',
+      label: 'ວຽກງານ',
+      color: '#10B981', // Emerald
+      icon: Briefcase,
+      trend: data.jobs[periodKey],
+      total: props.jobsCount || 42,
+      format: (v: number) => `${v} ວຽກ`
+    },
+    {
+      id: 'users',
+      label: 'ຜູ້ໃຊ້',
+      color: '#6366F1', // Indigo
+      icon: Users,
+      trend: data.users[periodKey],
+      total: props.usersCount || 128,
+      format: (v: number) => `${v} ຄົນ`
+    },
+    {
+      id: 'techs',
+      label: 'ຊ່າງ',
+      color: '#F59E0B', // Amber
+      icon: Wrench,
+      trend: data.techs[periodKey],
+      total: props.techsCount || 24,
+      format: (v: number) => `${v} ທ່ານ`
+    }
+  ];
+});
 
 const activeMetric = computed(() => {
   const found = metrics.value.find(m => m.id === activeMetricId.value);
   return found || metrics.value[0]!;
+});
+
+const latestGrowth = computed(() => {
+  const trend = activeMetric.value.trend;
+  if (trend.length === 0) return 0;
+  return trend[trend.length - 1]?.growth ?? 0;
 });
 
 // Dynamic values based on active metric's real totals
@@ -266,7 +410,7 @@ const trendValues = computed(() => {
     const totalVal = m.total || 50;
     const value = Math.max(1, Math.round(t.base * totalVal));
     return {
-      label: t.month,
+      label: t.label,
       value,
       growth: t.growth
     };

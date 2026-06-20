@@ -66,7 +66,7 @@
       <!-- Recent Technicians -->
       <div class="bg-white rounded-xl border border-slate-200 p-4">
         <div class="text-sm font-semibold text-slate-700 mb-3 pb-2 border-b border-slate-100">
-          ຊ່າງລ່າສຸດ
+          ຊ່າງທີ່ສະໝັກໃໝ່ລ່າສຸດ
         </div>
         
         <!-- Premium List Skeleton Loading -->

@@ -45,42 +45,42 @@
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item" to="/document">
+      <RouterLink class="sidebar-item indented" to="/document">
         <p>
           <FileText class="w-4 h-4 mx-2" />
           <span class="label">ເອກະສານ</span>
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item" to="/attachment">
+      <RouterLink class="sidebar-item indented" to="/attachment">
         <p>
           <Paperclip class="w-4 h-4 mx-2" />
           <span class="label">ໄຟລ໌ແນບປະກອບ</span>
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item" to="/notification">
+      <RouterLink class="sidebar-item indented" to="/notification">
         <p>
           <Bell class="w-4 h-4 mx-2" />
           <span class="label">ການແຈ້ງເຕືອນ</span>
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item" to="/service_area">
+      <RouterLink class="sidebar-item indented" to="/service_area">
         <p>
           <MapPin class="w-4 h-4 mx-2" />
           <span class="label">ພື້ນທີ່ໃຫ້ບໍລິການ</span>
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item" to="/technician_service">
+      <RouterLink class="sidebar-item indented" to="/technician_service">
         <p>
           <Wrench class="w-4 h-4 mx-2" />
           <span class="label">ການບໍລິການຂອງຊ່າງ</span>
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item" to="/comment">
+      <RouterLink class="sidebar-item indented" to="/comment">
         <p>
           <MessagesSquare class="w-4 h-4 mx-2" />
           <span class="label">ຄວາມຄິດເຫັນ</span>
@@ -88,7 +88,7 @@
       </RouterLink>
 
 
-      <RouterLink class="sidebar-item" to="/systemlog">
+      <RouterLink class="sidebar-item indented" to="/systemlog">
         <p>
           <ScrollText class="w-4 h-4 mx-2" />
           <span class="label">ບັນທຶກປະຫວັດລະບົບ</span>
@@ -117,7 +117,7 @@
             <RouterLink to="/manage/service-area">ສະຖິຕິການປະກາດວຽກ</RouterLink>
           </li>
           <li>
-            <RouterLink class="text-sm" to="/manage/technician-status">ສະຖານະການຢືນຢັນຕົວຕົນ</RouterLink>
+            <RouterLink to="/manage/technician-status">ສະຖານະການຢືນຢັນຕົວຕົນ</RouterLink>
           </li>
         </ul>
       </div>
@@ -267,7 +267,7 @@ const log_Out = async () => {
 }
 
 .sidebar-items {
-  padding: 1.5rem 1rem;
+  padding: 1.5rem 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -276,6 +276,12 @@ const log_Out = async () => {
 
   .sidebar-item {
     user-select: none;
+
+    &.indented {
+      p {
+        padding-left: 1.5rem;
+      }
+    }
 
     &.router-link-active {
       p {
@@ -302,9 +308,14 @@ const log_Out = async () => {
       cursor: pointer;
       transition: all ease-in-out 0.15s;
       border-radius: 6px;
-      padding: 0 1rem;
+      padding: 0 0.5rem;
       font-size: var(--sm-font);
       white-space: nowrap;
+
+      svg {
+        margin-left: 0.25rem !important;
+        margin-right: 0.5rem !important;
+      }
     }
 
     i {
@@ -347,7 +358,7 @@ const log_Out = async () => {
           display: flex;
 
           &::before {
-            margin-left: 1rem;
+            margin-left: 0.5rem;
             width: 30px;
             content: "\e130";
             font-family: "Font Awesome 6 Pro";
@@ -400,11 +411,17 @@ const log_Out = async () => {
   height: 3rem;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 0 0.75rem;
   cursor: pointer;
   gap: 0.5rem;
   color: red;
   transition: all ease-in-out 0.15s;
+
+  svg {
+    margin-left: 0.25rem !important;
+    margin-right: 0.5rem !important;
+  }
 
   &:hover {
     color: var(--orange-900);
