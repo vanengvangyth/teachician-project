@@ -69,6 +69,7 @@ const route = useRoute();
 const emits = defineEmits(["closeForm"]);
 
 const previewUrl = ref("");
+const selectedFile = ref<File | null>(null);
 const toastStore = useToastStore();
 
 const repo = new AttachmentRepositoryImpl();
@@ -76,37 +77,13 @@ const createUseCase = new CreateAttachmentUseCase(repo);
 const updateUseCase = new UpdateAttachmentUseCase(repo);
 const getOneUseCase = new GetOneAttachmentUseCase(repo);
 
-const onFileChange = async (e: Event) => {
+const onFileChange = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (!file) return;
 
+  selectedFile.value = file;
   previewUrl.value = URL.createObjectURL(file);
-
-  const formData = new FormData();
-
-  // 🔥 IMPORTANT: must match backend "FilesInterceptor('files')"
-  formData.append("files", file);
-
-  try {
-    const res = await fetch("http://localhost:3000/attachments", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      throw new Error("Upload failed");
-    }
-
-    const data = await res.json();
-
-    console.log("UPLOAD RESPONSE:", data);
-
-    // backend should return fileUrl (or adjust if different)
-    setFieldValue("fileUrl", data.fileUrl || data.url);
-
-  } catch (err) {
-    console.error("Upload error:", err);
-  }
+  setFieldValue("fileUrl", file.name); // Set to file name to pass yup validation
 };
 
 const job_idSchema = yup.object({
@@ -128,15 +105,22 @@ const [fileUrlValue] = defineField("fileUrl");
 // Create
 const onSubmit = handleSubmit(async (values: any) => {
   try {
-    console.log("SUBMIT VALUES:", values);
+    if (!selectedFile.value) {
+      toastStore.toast("ກະລຸນາເລືອກໄຟລ໌ ❌");
+      return;
+    }
 
-    await createUseCase.execute(values);
+    const formData = new FormData();
+    formData.append("job_id", values.job_id);
+    formData.append("files", selectedFile.value); // Backend expects "files" for create
 
-    toastStore.toast("ສຳເລັດ");
+    await createUseCase.execute(formData as any);
+
+    toastStore.toast("ສ້າງສຳເລັດ ✅");
     emits("closeForm", false);
   } catch (e) {
     console.error("Create error:", e);
-    toastStore.toast("ບໍ່ສຳເລັດ");
+    toastStore.toast("ສ້າງບໍ່ສຳເລັດ ❌");
   }
 });
 
@@ -144,14 +128,20 @@ const onSubmit = handleSubmit(async (values: any) => {
 const onUpdate = handleSubmit(async (values: any) => {
   try {
     const id = String(route.query.id);
-
     if (!id) return;
 
-    await updateUseCase.execute(id, values);
+    const formData = new FormData();
+    if (selectedFile.value) {
+      formData.append("file", selectedFile.value); // Backend expects "file" for update
+    }
 
+    await updateUseCase.execute(id, formData as any);
+
+    toastStore.toast("ອັບເດດສຳເລັດ ✅");
     emits("closeForm", false);
   } catch (e) {
     console.error("Update error:", e);
+    toastStore.toast("ອັບເດດບໍ່ສຳເລັດ ❌");
   }
 });
 
@@ -180,6 +170,8 @@ const editItem = async () => {
 watch(
   () => route.query.id,
   (newId) => {
+    selectedFile.value = null;
+    previewUrl.value = "";
     if (newId) {
       editItem();
     } else {

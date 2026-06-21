@@ -102,19 +102,45 @@ const onFileChange = async (e: Event) => {
 
   previewUrl.value = URL.createObjectURL(file);
 
-  const formData = new FormData();
-  formData.append("file", file);
+  const timestamp = Math.round(Date.now() / 1000);
+  const apiSecret = "skp3wcI3tj4gcYk0OAjCZzviIHs";
+  const apiKey = "454735135417998";
+  const cloudName = "dlezoitzc";
+
+  // Generate SHA-1 signature
+  const stringToSign = `timestamp=${timestamp}${apiSecret}`;
+
+  // Use Web Crypto API to calculate SHA-1
+  const sha1 = async (str: string): Promise<string> => {
+    const buffer = new TextEncoder().encode(str);
+    const hashBuffer = await crypto.subtle.digest("SHA-1", buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  };
 
   try {
-    const res = await fetch("http://localhost:3000/upload/image", {
+    const signature = await sha1(stringToSign);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", apiKey);
+    formData.append("timestamp", timestamp.toString());
+    formData.append("signature", signature);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
       method: "POST",
       body: formData,
     });
 
     const data = await res.json();
-    setFieldValue("iconUrl", data.url);
+    if (data.secure_url) {
+      setFieldValue("iconUrl", data.secure_url);
+    } else {
+      throw new Error(data.error?.message || "Upload to Cloudinary failed");
+    }
   } catch (err) {
     console.error("Upload error:", err);
+    toastStore.toast("ອັບໂຫຼດຮູບພາບບໍ່ສຳເລັດ ❌");
   }
 };
 

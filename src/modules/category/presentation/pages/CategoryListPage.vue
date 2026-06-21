@@ -138,7 +138,8 @@ onMounted(loadItems);
     <!-- SEARCH -->
     <div class="flex justify-center p-6">
       <input v-model="search" placeholder="Search..." class="w-full max-w-sm rounded-lg border border-blue-400 bg-white px-4 py-2 text-sm
-           focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none" </div>
+           focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none" />
+    </div>
 
       <!-- TABLE -->
       <div class="overflow-x-auto relative min-h-[200px]">
