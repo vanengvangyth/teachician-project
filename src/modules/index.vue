@@ -148,22 +148,26 @@ function statusClass(status: string) {
 
 async function loadStats() {
   try {
-    const [users, jobs, techs, customers] = await Promise.all([
+    const [users, jobs, techs, customersRes] = await Promise.all([
       userApi.getAll(1, 1),
       jobApi.getAll(1, 1),
       techicianApi.getAll(1, 1),
-      userApi.getAll(1, 1, '', 'user'),
+      userApi.getAll(1, 1000, '', 'user'),
     ]);
 
     usersCount.value = users.total ?? 0;
     jobsCount.value = jobs.total ?? 0;
     techsCount.value = techs.total ?? 0;
 
+    const customersCount = (customersRes.data ?? []).filter(
+      (u: any) => u.role?.toLowerCase() === 'user'
+    ).length;
+
     stats.value = [
       { label: 'ຜູ້ໃຊ້ທັງໝົດ', value: users.total ?? 0, icon: Users, bg: '#E6F1FB', color: '#185FA5', route: '/user' },
       { label: 'ວຽກທັງໝົດ', value: jobs.total ?? 0, icon: Briefcase, bg: '#EAF3DE', color: '#3B6D11', route: '/job' },
       { label: 'ຊ່າງທັງໝົດ', value: techs.total ?? 0, icon: HardHat, bg: '#FAEEDA', color: '#854F0B', route: '/techician' },
-      { label: 'ລູກຄ້າ', value: customers.total ?? 0, icon: User, bg: '#E1F5EE', color: '#0F6E56', route: '/users' },
+      { label: 'ລູກຄ້າ', value: customersCount, icon: User, bg: '#E1F5EE', color: '#0F6E56', route: '/users' },
     ];
 
     const jobRes = await jobApi.getAll(1, 50);
