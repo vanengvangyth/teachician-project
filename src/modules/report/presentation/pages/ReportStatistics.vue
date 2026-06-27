@@ -11,7 +11,7 @@
         </div>
         <div>
           <h1 class="report-title">ລາຍງານສະຖິຕິການປະກາດວຽກ</h1>
-          <p class="report-subtitle">ສະຖິຕິການປະກາດວຽກແຍກຕາມແຕ່ລະປະເພດວຽກ ແລະ ເຂດບໍລິການ</p>
+          <p class="report-subtitle">ສະຖິຕິການປະກາດວຽກ</p>
         </div>
       </div>
       <button @click="exportExcel" class="btn-export" :disabled="loading || filteredItems.length === 0">
