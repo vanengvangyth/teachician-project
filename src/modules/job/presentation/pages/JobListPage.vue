@@ -173,7 +173,7 @@ onMounted(loadItems);
         <button
           class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition mx-10"
           @click="showDeleted = !showDeleted">
-          ກູ້ຄືນວຽກທີ່ຖືກລຶບ
+          ວຽກທີ່ຖືກລຶບ
         </button>
         <button
           class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
@@ -210,12 +210,12 @@ onMounted(loadItems);
           <tr>
             <th class="px-6 py-3 text-left font-semibold">ຮູບພາບ</th>
             <th class="px-6 py-3 text-left font-semibold">ຊື່ວຽກ</th>
-            <th class="px-6 py-3 text-left font-semibold">ປະເພດວຽກ</th>
             <th class="px-6 py-3 text-left font-semibold">ປະເພດ</th>
+            <th class="px-6 py-3 text-left font-semibold">ຄຳອະທິບາຍ</th>
             <th class="px-6 py-3 text-left font-semibold">ວັນທີ່ສ້າງ</th>
             <th class="px-6 py-3 text-left font-semibold">ວັນທີ່ແກ້ໄຂ</th>
             <th class="px-6 py-3 text-left font-semibold">ສະຖານະ</th>
-            <th class="px-6 py-3 text-right font-semibold">Actions</th>
+            <th class="px-6 py-3 text-right font-semibold">ຈັດການ</th>
           </tr>
         </thead>
 
@@ -235,13 +235,13 @@ onMounted(loadItems);
 
             <td class="px-6 py-4">
               <div class="font-semibold text-slate-800">
-                {{ item.description || ("#" + item.jobId) }}
+                {{ item.category?.nameLao || ("#" + item.jobId) }}
               </div>
             </td>
 
             <td class="px-6 py-4">
               <div class="font-semibold text-slate-800">
-                {{ item.category?.nameLao || ("#" + item.jobId) }}
+                {{ item.description || ("#" + item.jobId) }}
               </div>
             </td>
 

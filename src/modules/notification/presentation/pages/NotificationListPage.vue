@@ -130,12 +130,7 @@ onMounted(loadItems);
     <!-- HEADER -->
     <div class="flex items-center justify-between p-6 border-b">
       <h1 class="text-2xl font-bold text-slate-800">ຈັດການການແຈ້ງເຕືອນ</h1>
-      <div class="flex px-10">
-        <button
-          class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition mx-10"
-          @click="showDeleted = !showDeleted">
-          ກູ້ຄືນລາຍການທີ່ຖືກລຶບ
-        </button>
+      <div class="flex px-6">
         <button
           class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
           @click="showForm = true">

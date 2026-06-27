@@ -1,5 +1,5 @@
 import { NotificationRepositoryImpl } from '../../infrastructure/repositories/notification.repository.impl';
-import type { Notification } from '../../domain/entities/notifications.entity';
+import type { Notification } from '../../domain/entities/notification.entity';
 
 export class CreateNotificationUseCase {
 private repo: NotificationRepositoryImpl;

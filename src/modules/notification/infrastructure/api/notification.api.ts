@@ -12,7 +12,7 @@ export const notificationApi = {
   },
 
   async create(data: any) {
-    const res = await axios.post('/notifications', data);
+    const res = await axios.post('/notifications/send', data);
     return res.data;
   },
 

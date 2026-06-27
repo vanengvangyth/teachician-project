@@ -24,17 +24,17 @@
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item" to="/job">
-        <p>
-          <Briefcase class="w-4 h-4 mx-2" />
-          <span class="label">ຈັດການຂໍ້ມູນວຽກ</span>
-        </p>
-      </RouterLink>
-
       <RouterLink class="sidebar-item" to="/techician">
         <p>
           <HardHat class="w-4 h-4 mx-2" />
           <span class="label">ຈັດການຂໍ້ມູນຊ່າງ</span>
+        </p>
+      </RouterLink>
+
+      <RouterLink class="sidebar-item" to="/job">
+        <p>
+          <Briefcase class="w-4 h-4 mx-2" />
+          <span class="label">ຈັດການຂໍ້ມູນວຽກ</span>
         </p>
       </RouterLink>
 
@@ -59,12 +59,12 @@
         </p>
       </RouterLink>
 
-      <RouterLink class="sidebar-item indented" to="/notification">
+      <!-- <RouterLink class="sidebar-item indented" to="/notification">
         <p>
           <Bell class="w-4 h-4 mx-2" />
           <span class="label">ການແຈ້ງເຕືອນ</span>
         </p>
-      </RouterLink>
+      </RouterLink> -->
 
       <RouterLink class="sidebar-item indented" to="/service_area">
         <p>
@@ -114,7 +114,7 @@
             <RouterLink to="/manage/category">ຂ້ໍມູນປະເພດວຽກ</RouterLink>
           </li>
           <li>
-            <RouterLink to="/manage/service-area">ສະຖິຕິການປະກາດວຽກ</RouterLink>
+            <RouterLink to="/manage/statistics">ສະຖິຕິການປະກາດວຽກ</RouterLink>
           </li>
           <li>
             <RouterLink to="/manage/technician-status">ສະຖານະການຢືນຢັນຕົວຕົນ</RouterLink>
@@ -149,7 +149,6 @@ import {
   HardHat,
   MessagesSquare,
   Paperclip,
-  Bell,
   MapPin,
   Wrench,
   ScrollText,

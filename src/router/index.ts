@@ -178,10 +178,10 @@ const router = createRouter({
       component: () => import("../modules/report/presentation/pages/ReportCategories.vue")
     },
     {
-      path: "/manage/service-area",
-      name: "report.serviceArea",
+      path: "/manage/statistics",
+      name: "report.statistics",
       meta: { requiresAuth: true },
-      component: () => import("../modules/report/presentation/pages/ReportServiceAreas.vue")
+      component: () => import("../modules/report/presentation/pages/ReportStatistics.vue")
     },
     {
       path: "/manage/technician-status",

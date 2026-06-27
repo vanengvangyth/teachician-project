@@ -117,17 +117,17 @@ onMounted(loadItems);
   <div class="min-h-screen p-6 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg max-h-[60vh] overflow-y-auto">
     <!-- HEADER -->
     <div class="flex items-center justify-between p-6 border-b">
-      <h1 class="text-2xl font-bold text-slate-800">ຫນ້າຈັດການຫມວດຫມູ່</h1>
+      <h1 class="text-2xl font-bold text-slate-800">ຫນ້າຈັດການປະເພດວຽກ</h1>
       <div class="flex px-10">
         <button
           class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition mx-10"
           @click="showDeleted = !showDeleted">
-          ກູ້ຄືນໝວດໝູ່ທີ່ຖືກລຶບ
+          ປະເພດວຽກທີ່ຖືກລຶບ 
         </button>
         <button
           class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-600 transition"
           @click="showForm = true">
-          + ເພິ່ມຫມວດຫມູ່ໃຫມ່
+          + ເພິ່ມປະເພດວຽກໃໝ່
         </button>
       </div>
     </div>
@@ -165,7 +165,7 @@ onMounted(loadItems);
               <th class="px-6 py-3 text-left font-semibold">ຄຳອະທິບາຍ</th>
               <th class="px-6 py-3 text-left font-semibold">ວັນທີ່ສ້າງ</th>
               <th class="px-6 py-3 text-left font-semibold">ວັນທີ່ແກ້ໄຂ</th>
-              <th class="px-6 py-3 text-right font-semibold">Actions</th>
+              <th class="px-6 py-3 text-right font-semibold">ຈັດການ</th>
             </tr>
           </thead>
 
