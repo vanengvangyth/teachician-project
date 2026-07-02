@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useLoadingStore } from "../stores/loading";
+import { apiURL } from "../global-variables";
 
 const api = axios.create({
-  baseURL: "YOUR_API_URL",
+  baseURL: apiURL,
 });
 
 // ເລີ່ມ loading ກ່ອນສົ່ງ request
