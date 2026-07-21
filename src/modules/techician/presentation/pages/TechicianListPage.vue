@@ -190,7 +190,14 @@ async function confirmActionHandler() {
         try {
           await updateUserUseCase.execute(userId, {
             role: "TECHNICIANS",
-            isVerified: true        try {
+            isVerified: true,
+            is_verified: true,
+          } as any);
+        } catch (e) {
+          console.error("Failed to update user role:", e);
+        }
+
+        try {
           await createNotificationUseCase.execute({
             userId: Number(userId),
             user_id: Number(userId),
@@ -234,13 +241,6 @@ async function confirmActionHandler() {
             title: "ການອະນຸມັດບັນຊີຊ່າງຂອງທ່ານຖືກຍົກເລີກ / ປະຕິເສດ",
             message: "ບັນຊີຊ່າງຂອງທ່ານຖືກປະຕິເສດ ຫຼື ຍົກເລີກການອະນຸມັດ.",
             body: "ບັນຊີຊ່າງຂອງທ່ານຖືກປະຕິເສດ ຫຼື ຍົກເລີກການອະນຸມັດ.",
-            type: "appointment_confirmed",
-            referenceId: Number(targetId),
-          } as any);
-          console.log("Rejection notification sent successfully to user:", userId);
-        } catch (notifErr) {��ັດບັນຊີຊ່າງຂອງທ່ານຖືກຍົກເລີກ / ປະຕິເສດ",
-            titleEng: "Your technician account status was updated",
-            message: "ບັນຊີຊ່າງຂອງທ່ານຖືກປະຕິເສດ ຫຼື ຍົກເລີກການອະນຸມັດ.",
             type: "appointment_confirmed",
             referenceId: Number(targetId),
           } as any);
