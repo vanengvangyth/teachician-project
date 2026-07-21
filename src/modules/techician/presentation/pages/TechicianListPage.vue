@@ -15,6 +15,10 @@ import Paginator from "../../../../shared/components/paginator.vue";
 import techicianDeletePage from "./techicianDeletePage.vue";
 import { useToastStore } from "../../../../stores/toast";
 import { getImageUrl } from "../../../../shared/utils/image.util";
+import { NotificationRepositoryImpl } from "../../../notification/infrastructure/repositories/notification.repository.impl";
+import { CreateNotificationUseCase } from "../../../notification/application/use-cases/create-notifications.usecase";
+import { UserRepositoryImpl } from "../../../user/infrastructure/repositories/user.repository.impl";
+import { UpdateUserUseCase } from "../../../user/application/use-cases/update-users.usecase";
 
 const items = ref<Techician[]>([]);
 const search = ref("");
@@ -47,6 +51,12 @@ const getUseCase = new GetAllTechiciansUseCase(repo);
 const deleteUseCase = new SoftDeleteTechicianUseCase(repo);
 const approveUseCase = new ApproveTechicianUseCase(repo);
 const rejectUseCase = new RejectTechicianUseCase(repo);
+
+const notificationRepo = new NotificationRepositoryImpl();
+const createNotificationUseCase = new CreateNotificationUseCase(notificationRepo);
+
+const userRepo = new UserRepositoryImpl();
+const updateUserUseCase = new UpdateUserUseCase(userRepo);
 
 const currentPage = computed(() => {
   const pageQuery = route.query.page;
@@ -168,12 +178,35 @@ async function confirmDelete() {
 async function confirmActionHandler() {
   if (!selectedActionId.value) return;
   const targetId = selectedActionId.value;
+  const targetItem = items.value.find((i) => i.id === targetId);
+  const userId = targetItem?.userId ?? (targetItem as any)?.user_id ?? targetItem?.user?.id;
 
   try {
     isLoading.value = true;
 
     if (confirmAction.value === "approve") {
       await approveUseCase.execute(targetId);
+      if (userId) {
+        try {
+          await updateUserUseCase.execute(userId, {
+            role: "TECHNICIANS",
+            isVerified: true        try {
+          await createNotificationUseCase.execute({
+            userId: Number(userId),
+            user_id: Number(userId),
+            titleLao: "ບັນຊີຊ່າງຂອງທ່ານຖືກອະນຸມັດແລ້ວ",
+            titleEng: "Your technician account has been approved",
+            title: "ບັນຊີຊ່າງຂອງທ່ານຖືກອະນຸມັດແລ້ວ",
+            message: "ບັນຊີຊ່າງຂອງທ່ານຖືກອະນຸມັດແລ້ວ, ທ່ານສາມາດເລີ່ມຮັບງານໄດ້ເລີຍ.",
+            body: "ບັນຊີຊ່າງຂອງທ່ານຖືກອະນຸມັດແລ້ວ, ທ່ານສາມາດເລີ່ມຮັບງານໄດ້ເລີຍ.",
+            type: "appointment_confirmed",
+            referenceId: Number(targetId),
+          } as any);
+          console.log("Approval notification sent successfully to user:", userId);
+        } catch (notifErr) {
+          console.error("Failed to send approval notification to technician:", notifErr);
+        }
+      }
       // ✅ อัปเดต isApproved ใน list ทันที ไม่ต้อง reload
       items.value = items.value.map((i) =>
         i.id === targetId ? { ...i, isApproved: true } : i,
@@ -181,6 +214,41 @@ async function confirmActionHandler() {
       toastStore.toast("ອະນຸມັດສຳເລັດ");
     } else {
       await rejectUseCase.execute(targetId);
+      if (userId) {
+        try {
+          await updateUserUseCase.execute(userId, {
+            role: "USER",
+            isVerified: false,
+            is_verified: false,
+          } as any);
+        } catch (e) {
+          console.error("Failed to reset user role:", e);
+        }
+
+        try {
+          await createNotificationUseCase.execute({
+            userId: Number(userId),
+            user_id: Number(userId),
+            titleLao: "ການອະນຸມັດບັນຊີຊ່າງຂອງທ່ານຖືກຍົກເລີກ / ປະຕິເສດ",
+            titleEng: "Your technician account status was updated",
+            title: "ການອະນຸມັດບັນຊີຊ່າງຂອງທ່ານຖືກຍົກເລີກ / ປະຕິເສດ",
+            message: "ບັນຊີຊ່າງຂອງທ່ານຖືກປະຕິເສດ ຫຼື ຍົກເລີກການອະນຸມັດ.",
+            body: "ບັນຊີຊ່າງຂອງທ່ານຖືກປະຕິເສດ ຫຼື ຍົກເລີກການອະນຸມັດ.",
+            type: "appointment_confirmed",
+            referenceId: Number(targetId),
+          } as any);
+          console.log("Rejection notification sent successfully to user:", userId);
+        } catch (notifErr) {��ັດບັນຊີຊ່າງຂອງທ່ານຖືກຍົກເລີກ / ປະຕິເສດ",
+            titleEng: "Your technician account status was updated",
+            message: "ບັນຊີຊ່າງຂອງທ່ານຖືກປະຕິເສດ ຫຼື ຍົກເລີກການອະນຸມັດ.",
+            type: "appointment_confirmed",
+            referenceId: Number(targetId),
+          } as any);
+          console.log("Rejection notification sent successfully to user:", userId);
+        } catch (notifErr) {
+          console.error("Failed to send rejection notification to technician:", notifErr);
+        }
+      }
       // ✅ อัปเดต isApproved เป็น false ทันที
       items.value = items.value.map((i) =>
         i.id === targetId ? { ...i, isApproved: false } : i,
