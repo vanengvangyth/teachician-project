@@ -265,6 +265,8 @@ import { getImageUrl } from "../../../../shared/utils/image.util";
 import { getOneUserUseCase } from "../../../user/application/use-cases/get-user.usecase";
 import { UserRepositoryImpl } from "../../../user/infrastructure/repositories/user.repository.impl";
 import { UpdateUserUseCase } from "../../../user/application/use-cases/update-users.usecase";
+import { NotificationRepositoryImpl } from "../../../notification/infrastructure/repositories/notification.repository.impl";
+import { CreateNotificationUseCase } from "../../../notification/application/use-cases/create-notifications.usecase";
 
 const route = useRoute();
 const router = useRouter();
@@ -274,6 +276,9 @@ const repo = new TechicianRepositoryImpl();
 const getOne = new GetOneTechicianUseCase(repo);
 const approveUseCase = new ApproveTechicianUseCase(repo);
 const rejectUseCase = new RejectTechicianUseCase(repo);
+
+const notificationRepo = new NotificationRepositoryImpl();
+const createNotificationUseCase = new CreateNotificationUseCase(notificationRepo);
 
 const item = ref<Techician | null>(null);
 const isActionLoading = ref(false);
@@ -368,6 +373,24 @@ const handleApprove = async () => {
         is_verified: true
       } as any);
       console.log("Role update API response:", updateRes);
+
+      // Send notification to technician immediately
+      try {
+        await createNotificationUseCase.execute({
+          userId: Number(userId),
+          user_id: Number(userId),
+          titleLao: "ບັນຊີຊ່າງຂອງທ່ານຖືກອະນຸມັດແລ້ວ",
+          titleEng: "Your technician account has been approved",
+          title: "ບັນຊີຊ່າງຂອງທ່ານຖືກອະນຸມັດແລ້ວ",
+          message: "ບັນຊີຊ່າງຂອງທ່ານຖືກອະນຸມັດແລ້ວ, ທ່ານສາມາດເລີ່ມຮັບງານໄດ້ເລີຍ.",
+          body: "ບັນຊີຊ່າງຂອງທ່ານຖືກອະນຸມັດແລ້ວ, ທ່ານສາມາດເລີ່ມຮັບງານໄດ້ເລີຍ.",
+          type: "appointment_confirmed",
+          referenceId: Number(item.value.id)
+        } as any);
+        console.log("Approval notification sent successfully to user:", userId);
+      } catch (notifErr) {
+        console.error("Failed to send approval notification to technician:", notifErr);
+      }
     } else {
       console.warn("Could not find userId to update role.");
     }
@@ -400,6 +423,24 @@ const handleReject = async () => {
         is_verified: false
       } as any);
       console.log("Role reset API response:", updateRes);
+
+      // Send notification to technician
+      try {
+        await createNotificationUseCase.execute({
+          userId: Number(userId),
+          user_id: Number(userId),
+          titleLao: "ການອະນຸມັດບັນຊີຊ່າງຂອງທ່ານຖືກຍົກເລີກ / ປະຕິເສດ",
+          titleEng: "Your technician account status was updated",
+          title: "ການອະນຸມັດບັນຊີຊ່າງຂອງທ່ານຖືກຍົກເລີກ / ປະຕິເສດ",
+          message: "ບັນຊີຊ່າງຂອງທ່ານຖືກປະຕິເສດ ຫຼື ຍົກເລີກການອະນຸມັດ.",
+          body: "ບັນຊີຊ່າງຂອງທ່ານຖືກປະຕິເສດ ຫຼື ຍົກເລີກການອະນຸມັດ.",
+          type: "appointment_confirmed",
+          referenceId: Number(item.value.id)
+        } as any);
+        console.log("Rejection notification sent successfully to user:", userId);
+      } catch (notifErr) {
+        console.error("Failed to send rejection notification to technician:", notifErr);
+      }
     } else {
       console.warn("Could not find userId to reset role.");
     }
