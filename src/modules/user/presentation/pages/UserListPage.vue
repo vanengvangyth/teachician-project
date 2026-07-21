@@ -58,33 +58,21 @@ async function loadUsers() {
   const params: any = {
     page: currentPage.value,
     perPage,
+    role: "admin",
   };
   if (search.value && search.value.trim() !== "") {
     params.search = search.value.trim();
   }
-  if (selectedRole.value !== "All") {
-    params.role = selectedRole.value.toLowerCase();
-  }
 
   const result: PaginatedUsers = await getUsersUseCase.execute(params);
-  
-  let data = result.data || [];
-  if (selectedRole.value !== "All") {
-    const isMatch = (userRole: string, filterRole: string) => {
-      const u = userRole ? userRole.toLowerCase() : "";
-      const f = filterRole ? filterRole.toLowerCase() : "";
-      if (u === f) return true;
-      if ((u === "technician" || u === "technicians") && (f === "technician" || f === "technicians")) return true;
-      return false;
-    };
-    const hasUnsupportedRole = data.some(u => !isMatch(u.role, selectedRole.value));
-    if (hasUnsupportedRole) {
-      data = data.filter(u => isMatch(u.role, selectedRole.value));
-    }
-  }
+
+  // Show only users whose role is ADMIN
+  const data = (result.data || []).filter(
+    (u) => (u.role ? u.role.toLowerCase() : "") === "admin"
+  );
 
   items.value = data;
-  totalUsers.value = result.total;
+  totalUsers.value = data.length;
 }
 
 watch(search, () => {
