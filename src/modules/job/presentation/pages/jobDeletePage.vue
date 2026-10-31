@@ -106,11 +106,10 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from "vue-router";
-import { JobRepositoryImpl } from "../../infrastructure/repositories/job.repository.impl";
-import { Pencil, Trash2 } from "lucide-vue-next";
+import { useRoute } from "vue-router";
 import { GetDeletedJobsUseCase } from "../../application/use-cases/get-delete-usecase";
-import { computed, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
+import { JobRepositoryImpl } from "../../infrastructure/repositories/job.repository.impl";
 import type { PaginatedJobs, Job } from "../../domain/entities/job.entity";
 import { HardDeleteJobUseCase } from "../../application/use-cases/hard-delete-jobs.usecase";
 import { RestoreJobUseCase } from "../../application/use-cases/restore-jobs.usecase";
@@ -118,11 +117,9 @@ import { useToastStore } from "../../../../stores/toast";
 
 const items = ref<Job[]>([]);
 const route = useRoute();
-const router = useRouter();
 const emits = defineEmits(["closeForm"]);
 const totalItems = ref(0);
 const perPage = 10;
-const numberOfPage = computed(() => Math.ceil(totalItems.value / perPage));
 
 const toastStore = useToastStore();
 const isLoading = ref(false);

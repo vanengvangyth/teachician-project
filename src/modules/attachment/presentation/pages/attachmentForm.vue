@@ -125,7 +125,7 @@ const onSubmit = handleSubmit(async (values: any) => {
 });
 
 // Update
-const onUpdate = handleSubmit(async (values: any) => {
+const onUpdate = handleSubmit(async (_values) => {
   try {
     const id = String(route.query.id);
     if (!id) return;

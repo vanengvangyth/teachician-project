@@ -1,5 +1,6 @@
 export interface Document {
   docId: number;
+  technicianId?: number | null;
 
   technician?: {
     id: number;

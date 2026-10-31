@@ -1,5 +1,5 @@
 import { JobRepositoryImpl } from '../../infrastructure/repositories/job.repository.impl';
-import type { Job } from '../../domain/entities/jobs.entity';
+import type { Job } from '../../domain/entities/job.entity';
 
 export class CreateJobUseCase {
 private repo: JobRepositoryImpl;

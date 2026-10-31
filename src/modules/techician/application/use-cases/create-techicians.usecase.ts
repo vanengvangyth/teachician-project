@@ -1,5 +1,5 @@
 import { TechicianRepositoryImpl } from '../../infrastructure/repositories/techician.repository.impl';
-import type { Techician } from '../../domain/entities/techicians.entity';
+import type { Techician } from '../../domain/entities/techician.entity';
 
 export class CreateTechicianUseCase {
 private repo: TechicianRepositoryImpl;

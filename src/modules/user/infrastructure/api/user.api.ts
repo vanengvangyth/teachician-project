@@ -1,5 +1,5 @@
 import axios from '../../../../service/axios';
-import type { PaginatedUsers, SingleUserResponse } from '../../domain/entities/user.entity';
+
 
 export const userApi = {
   async getAll(page: number = 1, perPage: number = 10, search: string = '', role?: string): Promise<any> {

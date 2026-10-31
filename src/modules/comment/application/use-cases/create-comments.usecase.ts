@@ -1,5 +1,5 @@
 import { CommentRepositoryImpl } from '../../infrastructure/repositories/comment.repository.impl';
-import type { Comment } from '../../domain/entities/comments.entity';
+import type { Comment } from '../../domain/entities/comment.entity';
 
 export class CreateCommentUseCase {
 private repo: CommentRepositoryImpl;

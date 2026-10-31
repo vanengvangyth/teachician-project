@@ -1,5 +1,5 @@
 import { AttachmentRepositoryImpl } from '../../infrastructure/repositories/attachment.repository.impl';
-import type { Attachment } from '../../domain/entities/attachments.entity';
+import type { Attachment } from '../../domain/entities/attachment.entity';
 
 export class CreateAttachmentUseCase {
 private repo: AttachmentRepositoryImpl;

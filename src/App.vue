@@ -59,14 +59,12 @@ const loadingStore = useLoadingStore();
 
 const { isLoading } = storeToRefs(loadingStore);
 
-const isloading = ref<any>(false);
+
 
 const store = useAuthStore();
 console.log('user object:', JSON.stringify(store.user))
 
 const toastStore = useToastStore();
-
-const { toast } = toastStore;
 
 const { token } = storeToRefs(store);
 

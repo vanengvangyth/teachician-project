@@ -111,11 +111,10 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from "vue-router";
-import { CommentRepositoryImpl } from "../../infrastructure/repositories/comment.repository.impl";
-import { Pencil, Trash2 } from "lucide-vue-next";
+import { useRoute } from "vue-router";
 import { GetDeletedCommentsUseCase } from "../../application/use-cases/get-delete-usecase";
-import { computed, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
+import { CommentRepositoryImpl } from "../../infrastructure/repositories/comment.repository.impl";
 import type { PaginatedComments, Comment } from "../../domain/entities/comment.entity";
 import { HardDeleteCommentUseCase } from "../../application/use-cases/hard-delete-comments.usecase";
 import { RestoreCommentUseCase } from "../../application/use-cases/restore-comments.usecase";
@@ -123,11 +122,9 @@ import { useToastStore } from "../../../../stores/toast";
 
 const items = ref<Comment[]>([]);
 const route = useRoute();
-const router = useRouter();
 const emits = defineEmits(["closeForm"]);
 const totalItems = ref(0);
 const perPage = 10;
-const numberOfPage = computed(() => Math.ceil(totalItems.value / perPage));
 
 const toastStore = useToastStore();
 const isLoading = ref(false);

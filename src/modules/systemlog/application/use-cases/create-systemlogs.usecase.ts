@@ -1,5 +1,5 @@
 import { SystemlogRepositoryImpl } from '../../infrastructure/repositories/systemlog.repository.impl';
-import type { Systemlog } from '../../domain/entities/systemlogs.entity';
+import type { Systemlog } from '../../domain/entities/systemlog.entity';
 
 export class CreateSystemlogUseCase {
 private repo: SystemlogRepositoryImpl;

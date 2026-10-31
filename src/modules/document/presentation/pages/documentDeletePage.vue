@@ -117,9 +117,8 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { DocumentRepositoryImpl } from "../../infrastructure/repositories/document.repository.impl";
-import { Pencil, Trash2 } from "lucide-vue-next";
 import { GetDeletedDocumentsUseCase } from "../../application/use-cases/get-delete-usecase";
 import { computed, onMounted, ref, watch } from "vue";
 import type { PaginatedDocuments, Document } from "../../domain/entities/document.entity";
@@ -129,11 +128,9 @@ import { useToastStore } from "../../../../stores/toast";
 
 const items = ref<Document[]>([]);
 const route = useRoute();
-const router = useRouter();
 const emits = defineEmits(["closeForm"]);
 const totalItems = ref(0);
 const perPage = 10;
-const numberOfPage = computed(() => Math.ceil(totalItems.value / perPage));
 
 
 const toastStore = useToastStore();
