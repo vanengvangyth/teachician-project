@@ -51,7 +51,6 @@ import Toast from "./shared/components/toast.vue";
 import Loading from "./shared/components/Loading.vue";
 import { useAuthStore } from "./stores/auth";
 import { storeToRefs } from "pinia";
-import { useToastStore } from "./stores/toast";
 
 import { ref } from "vue";
 
@@ -64,7 +63,6 @@ const { isLoading } = storeToRefs(loadingStore);
 const store = useAuthStore();
 console.log('user object:', JSON.stringify(store.user))
 
-const toastStore = useToastStore();
 
 const { token } = storeToRefs(store);
 

@@ -277,8 +277,8 @@ const syncMapFromInputs = () => {
 const onSubmit = handleSubmit(async (values: any) => {
   try {
     const res = await createUseCase.execute({
-      userId: values.userId,
-      categoryId: values.categoryId,
+      user: values.userId,
+      category: values.categoryId,
       title: values.title,
       description: values.description,
       location: values.location,
